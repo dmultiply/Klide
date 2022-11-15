@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="l19ww6" name="Klide" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut"
+              pluginFormats="buildAU,buildVST3" defines="JUCE_MODAL_LOOPS_PERMITTED=1">
+  <MAINGROUP id="SRcIE6" name="Klide">
+    <GROUP id="{614E47FB-0328-2114-0775-98239FC1EC96}" name="Source">
+      <FILE id="HXsRk6" name="ControlsComponent.cpp" compile="1" resource="0"
+            file="Source/ControlsComponent.cpp"/>
+      <FILE id="Kkr5uS" name="ControlsComponent.h" compile="0" resource="0"
+            file="Source/ControlsComponent.h"/>
+      <FILE id="C7VPS7" name="CustomKnob.cpp" compile="1" resource="0" file="Source/CustomKnob.cpp"/>
+      <FILE id="mjE2Lf" name="CustomKnob.h" compile="0" resource="0" file="Source/CustomKnob.h"/>
+      <FILE id="Xx6fYx" name="CustomKnobLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/CustomKnobLookAndFeel.cpp"/>
+      <FILE id="OuIYSj" name="CustomKnobLookAndFeel.h" compile="0" resource="0"
+            file="Source/CustomKnobLookAndFeel.h"/>
+      <FILE id="kG8B6R" name="CustomSamplerVoice.cpp" compile="1" resource="0"
+            file="Source/CustomSamplerVoice.cpp"/>
+      <FILE id="GEZtNH" name="CustomSamplerVoice.h" compile="0" resource="0"
+            file="Source/CustomSamplerVoice.h"/>
+      <FILE id="HUqlUG" name="DSPSampler.cpp" compile="1" resource="0" file="Source/DSPSampler.cpp"/>
+      <FILE id="FYR6d9" name="DSPSampler.h" compile="0" resource="0" file="Source/DSPSampler.h"/>
+      <FILE id="PG0Sdi" name="DSPSynthesiser.cpp" compile="1" resource="0"
+            file="Source/DSPSynthesiser.cpp"/>
+      <FILE id="CMI73V" name="DSPSynthesiser.h" compile="0" resource="0"
+            file="Source/DSPSynthesiser.h"/>
+      <GROUP id="{9963F0D4-AC8F-960A-429C-5BC263F51361}" name="images">
+        <FILE id="vWNxqE" name="downButton.png" compile="0" resource="1" file="Source/images/downButton.png"/>
+        <FILE id="JpQhmT" name="folder.png" compile="0" resource="1" file="Source/images/folder.png"/>
+        <FILE id="K3QlK8" name="fractal.jpg" compile="0" resource="1" file="Source/images/fractal.jpg"/>
+        <FILE id="OdGSj7" name="fractal.png" compile="0" resource="1" file="Source/images/fractal.png"/>
+        <FILE id="uyNhFT" name="knob.png" compile="0" resource="1" file="Source/images/knob.png"/>
+        <FILE id="M49DjN" name="metallicKnob.png" compile="0" resource="1"
+              file="Source/images/metallicKnob.png"/>
+        <FILE id="El32Bl" name="normalButton.png" compile="0" resource="1"
+              file="Source/images/normalButton.png"/>
+        <FILE id="eBEReP" name="overButton.png" compile="0" resource="1" file="Source/images/overButton.png"/>
+        <FILE id="iYO2EP" name="stop.png" compile="0" resource="1" file="Source/images/stop.png"/>
+      </GROUP>
+      <FILE id="nGMLnS" name="SequenceGenerator.cpp" compile="1" resource="0"
+            file="Source/SequenceGenerator.cpp"/>
+      <FILE id="Tpn8dS" name="SequenceGenerator.h" compile="0" resource="0"
+            file="Source/SequenceGenerator.h"/>
+      <FILE id="hGkGqU" name="SimpleSynth.cpp" compile="1" resource="0" file="Source/SimpleSynth.cpp"/>
+      <FILE id="pk6viy" name="SimpleSynth.h" compile="0" resource="0" file="Source/SimpleSynth.h"/>
+      <GROUP id="{7D244029-5BE5-6AF2-CE4C-06F40869BD71}" name="sounds">
+        <FILE id="F0XSm0" name="sound1.wav" compile="0" resource="1" file="Source/sounds/sound1.wav"/>
+        <FILE id="m1nOpA" name="sound2.wav" compile="0" resource="1" file="Source/sounds/sound2.wav"/>
+        <FILE id="hcraEW" name="sound3.wav" compile="0" resource="1" file="Source/sounds/sound3.wav"/>
+        <FILE id="rPaXiN" name="sound4.wav" compile="0" resource="1" file="Source/sounds/sound4.wav"/>
+      </GROUP>
+      <FILE id="k61SlT" name="StepSequencerComponent.cpp" compile="1" resource="0"
+            file="Source/StepSequencerComponent.cpp"/>
+      <FILE id="VG5EnL" name="StepSequencerComponent.h" compile="0" resource="0"
+            file="Source/StepSequencerComponent.h"/>
+      <FILE id="mwEQUN" name="StepSequencerData.cpp" compile="1" resource="0"
+            file="Source/StepSequencerData.cpp"/>
+      <FILE id="bhf8XY" name="StepSequencerData.h" compile="0" resource="0"
+            file="Source/StepSequencerData.h"/>
+      <FILE id="NFlhOP" name="todoEuclide.rtf" compile="0" resource="1" file="Source/todoEuclide.rtf"/>
+      <FILE id="o9QBh6" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="WCdQo6" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="vnPEo3" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="QH7VR9" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Klide"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Klide"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../../Applications/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../../Applications/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+</JUCERPROJECT>

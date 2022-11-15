@@ -1,0 +1,41 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 === 14/11/2022 ===\
+- ATTENTION :  j\'92ai modifi\'e9, SamplerSound (ajout\'e9 un getter pour Length), et SamplerVoice (protected members instead of private -> make getters instead ?)\
+\
+=== 12/11/2022 ===\
+- TODO : work on the initialisation of sample name, NoteVec and such, in synth and StepSequencerData and Editor. Also on the midiNote, to start lower than 60.\
+Add the name in addSound() in the synth.\
+- TODO : check which format are supported for audio samples. For now, i\'92m allowing only wav coming from the user\
+- TODO : remove the modal loop permitted in the projucer and code the filechooser asynchronously.\
+- DONE : added 
+\f1 \cf2 \expnd0\expndtw0\kerning0
+JUCE_MODAL_LOOPS_PERMITTED=1 in the preprocessor in the projucer
+\f0 \cf0 \kerning1\expnd0\expndtw0 \
+- TODO : loop on the content of the folder containing the sounds to add the samples to the synth\
+- TODO : add the name of the audio files in the SamplerSound\
+- TODO : reimplement setSample dans le synth, to be able to add sounds from the user\
+\
+=== 10/11/2022 ===\
+- Put label on knobs, or use this technique : \
+https://forum.juce.com/t/tip-how-to-include-value-and-label-on-rotaryknob-without-declaring-a-label/35926\
+\
+=== 09/11/2022 ===\
+- TODO : \
+Check open source and ableton link\
+https://forum.juce.com/t/open-source-development-with-juce/29579/8\
+https://forum.juce.com/t/ableton-link-tutorial-how-to-build-and-some-tips/31242\
+- TODO : add a control panel, with a switch between the different samples, to limit the number of controls, like on the volcan. One by One.\
+- TODO : add ADSR, filter (IIR ?), delay, looping of the samples, pitch, \'85\
+- TODO : check the general design with Maayan, size of the sequencer squares. In circles instead of lines like in the other plugins ?\
+- TODO : work on images for buttons so that they have a consistent size between each other\
+- TODO : check if i put images for sliders, and if i change how they are controlled with the mouse\
+- TODO : add sound files to BinaryFiles\
+- TODO : add step with rotary to the controls.\
+- DONE : fixed bugs on gain, and crashing.\
+- DONE : improved interface, put images for buttons in BinaryFile in the projucer}
