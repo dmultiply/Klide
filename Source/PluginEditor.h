@@ -37,20 +37,21 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void timerCallback();
-    void buttonClicked (juce::Button* button);
+    void timerCallback() override;
+    void buttonClicked (juce::Button* button) override;
     
-    void sliderValueChanged (juce::Slider *slider);
+    void sliderValueChanged (juce::Slider *slider) override;
     
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    //KlideAudioProcessor& audioProcessor;
+    
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    KlideAudioProcessor& processor_;
+    //KlideAudioProcessor& audioProcessor;
+    KlideAudioProcessor& audioProcessor_;
+    
+    void initComponents();
     
     // =========== Types
     enum transportState
@@ -132,6 +133,7 @@ private:
     StepSequencerData* stepData_ = NULL;
     
     juce::Image backgroundImage_;
+    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KlideAudioProcessorEditor)
 };

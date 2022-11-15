@@ -74,11 +74,7 @@ class DSPSynthesiserSound    : public ReferenceCountedObject
         DSPSynthesiserVoice();
         
         /** Destructor. */
-        virtual ~DSPSynthesiserVoice();
-
-        //Added Mael 2022
-        virtual void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter) = 0;
-        
+        virtual ~DSPSynthesiserVoice();        
         
         //==============================================================================
         /** Returns the midi note that this voice is currently playing.

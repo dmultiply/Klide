@@ -99,16 +99,44 @@ void DSPSamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
 void DSPSamplerVoice::pitchWheelMoved (int /*newValue*/) {}
 void DSPSamplerVoice::controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
 
-
-void DSPSamplerVoice::setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter)
+void DSPSamplerVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
-    filter_ = filter;
+    
+    sampleRate_ = sampleRate;
+    
+    adsr.setSampleRate(sampleRate);
+    
+    //Filter
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = outputChannels;
+    
+    lowPassFilter_.prepare(spec);
+    lowPassFilter_.reset();
+    
+    isPrepared = true;
 }
 
+void DSPSamplerVoice::setADSRParams(float attack, float sustain, float decay, float release)
+{
+    adsrParams.attack = attack;
+    adsrParams.sustain = sustain;
+    adsrParams.decay = decay;
+    adsrParams.release = release;
+}
 
-//==============================================================================
+void DSPSamplerVoice::updateFilter(int frequency, float resonance)
+{
+    *lowPassFilter_.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, frequency, resonance);
+}
+
 void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
+    jassert(isPrepared);
+    
+    int numSamplesMem = numSamples;
+    
     if (auto* playingSound = static_cast<DSPSamplerSound*> (getCurrentlyPlayingSound().get()))
     {
 
@@ -129,29 +157,15 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
         else
             endBuffer = data.getNumSamples()-sourceSamplePosition;
         
-        
-        //AudioBuffer<float> dspBuffer;
-        //dspBuffer.clear();
-        //dspBuffer.setSize(2,endBuffer);
+       
         AudioBuffer<float> copyBuffer;
         copyBuffer.makeCopyOf(data);
-        //dspBuffer.copyFrom(0, 0, data, 0, sourceSamplePosition, endBuffer);
-        //dspBuffer.copyFrom(0, 0, data, 1, sourceSamplePosition, endBuffer);
-        
-        //dspBuffer.copyFrom(0, sourceSamplePosition, inL, endBuffer);
-        //dspBuffer.copyFrom(1, sourceSamplePosition, inR, endBuffer);
+ 
 
         AudioBuffer<float> dspBuffer(copyBuffer.getArrayOfWritePointers(), copyBuffer.getNumChannels(), sourceSamplePosition, endBuffer);
-        //dspBuffer.clear();
-        //dspBuffer.setSize(2, 512);
-        //dspBuffer.copyFrom(0, 0, data, 0, sourceSamplePosition, endBuffer);
-        //dspBuffer.copyFrom(1, 0, data, 1, sourceSamplePosition, endBuffer);
         
         juce::dsp::AudioBlock<float> block(dspBuffer);
-        filter_->process(juce::dsp::ProcessContextReplacing<float> (block));
-        
-        //data.copyFrom(0, sourceSamplePosition, dspBuffer, 0, 0, endBuffer);
-        //data.copyFrom(1, sourceSamplePosition, dspBuffer, 1, 0, endBuffer);
+        lowPassFilter_.process(juce::dsp::ProcessContextReplacing<float> (block));
         
         const float* const dspL = copyBuffer.getReadPointer (0);
         const float* const dspR = copyBuffer.getNumChannels() > 1 ? copyBuffer.getReadPointer (1) : nullptr;
@@ -164,16 +178,9 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             auto alpha = (float) (sourceSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
             
-            //auto pos = (int) dspBufferSamplePosition;
-            //auto alpha = (float) (dspBufferSamplePosition - pos);
-            //auto invAlpha = 1.0f - alpha;
-            
             // just using a very simple linear interpolation here..
             float l = (dspL[pos] * invAlpha + dspL[pos + 1] * alpha);
             float r = (dspR != nullptr) ? (dspR[pos] * invAlpha + dspR[pos + 1] * alpha) : l;
-            
-            //float l = dspL[pos];
-            //float r = dspR[pos];
             
             auto envelopeValue = adsr.getNextSample();
             
@@ -198,8 +205,11 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
                 break;
             }
         }
+      
+       //ADSR
+        adsr.applyEnvelopeToBuffer(outputBuffer, startSample, numSamplesMem);
         
-    }
+    }//end if
 }
     
 

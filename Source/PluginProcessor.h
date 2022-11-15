@@ -70,8 +70,15 @@ public:
     
     juce::String getInfo();
     
+    void setADSRParams();
+    
+    //juce::AudioProcessorValueTreeState tree_;
     
 private:
+    
+    //In case of using a tree
+    //juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+    
     //==============================================================================
     
     double computeNextBarSyncTime(juce::AudioPlayHead::CurrentPositionInfo currentPosition, double syncTimeDiff);
@@ -90,11 +97,7 @@ private:
     
     juce::String info_;
     
-    //Filter
-    //Process Duplicator to  make it stereo
-    juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> > lowPassFilter_;
-    
-    std::vector< juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >  > lowPassFilterVec_;
+    //Update Filter parameters in the sampler
     void updateFilter();
     
     

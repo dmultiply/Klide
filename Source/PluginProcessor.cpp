@@ -21,7 +21,7 @@ KlideAudioProcessor::KlideAudioProcessor()
                      #endif
                        ),
 sampleRate_ (44100.0),
-syncOn_(0), lowPassFilter_(juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, 6000.0f, 0.1f))
+syncOn_(0)
 #endif
 {
     
@@ -35,10 +35,6 @@ syncOn_(0), lowPassFilter_(juce::dsp::IIR::Coefficients<float>::makeLowPass(samp
     
     //Initialize StepSequencerData
     stepData_ = new StepSequencerData();
-    
-    for(int kk=0;kk<stepData_->getNumRows();kk++) {
-        lowPassFilterVec_.push_back(juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, 6000.0f, 0.1f));
-    }
     
 }
 
@@ -116,6 +112,14 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     synth_.setCurrentPlaybackSampleRate(sampleRate);
     
+    for (int i = 0; i<synth_.getNumVoices();i++) {
+        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
+        {
+            voice->prepareToPlay(sampleRate,samplesPerBlock,getTotalNumOutputChannels());
+        }
+    }
+    
+    /*
     //Filter
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -129,6 +133,7 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         lowPassFilterVec_[kk].prepare(spec);
         lowPassFilterVec_[kk].reset();
     }
+     */
 }
 
 void KlideAudioProcessor::releaseResources()
@@ -163,15 +168,25 @@ bool KlideAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
+void KlideAudioProcessor::setADSRParams()
+{
+    for (int i = 0; i<stepData_->getNumRows();i++) {
+        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
+        {
+            voice->setADSRParams(0.1f,0.1f,0.1f,0.1f);
+        }
+    }
+}
+
 void KlideAudioProcessor::updateFilter()
 {
-    *lowPassFilter_.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, stepData_->getFrequencyVec()[0], stepData_->getResonanceVec()[0]);
-    
-    for(int kk=0;kk<lowPassFilterVec_.size();kk++) {
-        *lowPassFilterVec_[kk].state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, stepData_->getFrequencyVec()[kk], stepData_->getResonanceVec()[kk]);
+    for (int i = 0; i<stepData_->getNumRows();i++) {
+        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
+        {
+            voice->updateFilter(stepData_->getFrequencyVec()[i], stepData_->getResonanceVec()[i]);
+        }
     }
     
-    //std::cout<<"freq : "<<stepData_->getFrequencyVec()[0]<<"res : "<<stepData_->getResonanceVec()[0]<<std::endl;
 }
 
 void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -267,14 +282,9 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
                         auto message = juce::MidiMessage::noteOn (1, noteNumber, juce::uint8(100));
                         midiMessages.addEvent(message, currentSampleNumber);
                         
-                        //int voiceNumber = synth_.getVoiceNumber(noteNumber);
-                        //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
-                        //synth_.getVoice(voiceNumber)->renderNextBlock(buffer, 0, buffer.getNumSamples());
-                        
                     }
                     stepData_->next(row);
                 }
-                //synth_.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
             }
         }
         
@@ -290,23 +300,12 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         
         
         updateFilter();
-        //synth_.setFilter(&lowPassFilter_, synth_.getVoice(synth_.getVoiceNumber(60)));
-        synth_.setFilter(&lowPassFilterVec_[0], synth_.getVoice(synth_.getVoiceNumber(60)));
-        synth_.setFilter(&lowPassFilterVec_[1], synth_.getVoice(synth_.getVoiceNumber(70)));
-        synth_.setFilter(&lowPassFilterVec_[2], synth_.getVoice(synth_.getVoiceNumber(80)));
-        synth_.setFilter(&lowPassFilterVec_[3], synth_.getVoice(synth_.getVoiceNumber(90)));
-        
-        
-        //juce::dsp::AudioBlock<float> block1(buffer);
-        
+        setADSRParams();       
         
         synth_.getVoice(synth_.getVoiceNumber(60))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        //lowPassFilter_.process(juce::dsp::ProcessContextReplacing<float> (block1));
-        
         synth_.getVoice(synth_.getVoiceNumber(70))->renderNextBlock(buffer, 0, buffer.getNumSamples());
         synth_.getVoice(synth_.getVoiceNumber(80))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        synth_.getVoice(synth_.getVoiceNumber(90))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        
+        synth_.getVoice(synth_.getVoiceNumber(90))->renderNextBlock(buffer, 0, buffer.getNumSamples());        
         
         //synth_.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     }
@@ -400,7 +399,18 @@ StepSequencerData* KlideAudioProcessor::getStepData()
     return stepData_;
 }
 
-
+/* //In case of using a tree
+juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter> > params;
+    params.push_back(std::make_unique<juce::AudioParameterInt>("NUMROWS","Numrows",4,8,4));
+    for(int numrow=0;numrow<4;numrow++){
+        params.push_back(std::make_unique<juce::AudioParameterBool>("PLAY"+std::to_string(numrow),"Play"+std::to_string(numrow),false));
+    }
+    
+    return {params.begin(), params.end()};
+}
+ */
 
 
 

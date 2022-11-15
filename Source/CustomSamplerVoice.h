@@ -16,9 +16,13 @@ public:
     CustomSamplerVoice();
     ~CustomSamplerVoice();
     
+    void prepareToPlay();
+    
     void renderNextBlock(juce::AudioSampleBuffer &outputBuffer, int startSample,
                                        int numSamples);
-        
+    
+    void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter);
+    
     //Getters/Setters
     void setLevel(float level);
     
@@ -26,4 +30,7 @@ private:
     float level_;
     
     void UpdateVoice();
+    
+    juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter_ = NULL;
+    
 };

@@ -11,10 +11,9 @@
 
 //==============================================================================
 KlideAudioProcessorEditor::KlideAudioProcessorEditor (KlideAudioProcessor& p)
-: AudioProcessorEditor (&p), processor_ (p),state_ (stopped), noRowOn_(true)
+: AudioProcessorEditor (&p), audioProcessor_ (p),state_ (stopped), noRowOn_(true)
 {
-    //Initialize StepSequencerData
-    //stepData_ = new StepSequencerData();
+    //Get StepSequencerData from the AudioProcessor
     stepData_ = p.getStepData();
     
     //If a first initialization of stepData has been made initiate with data from stepDataSequencer
@@ -24,8 +23,8 @@ KlideAudioProcessorEditor::KlideAudioProcessorEditor (KlideAudioProcessor& p)
 
 void KlideAudioProcessorEditor::init() {
     
+    //Getting the number of rows and bpm
     numrows_ = stepData_->getNumRows();
-    
     bpm_ = stepData_->getBpm();
     
     //Initialize the steps
@@ -35,7 +34,30 @@ void KlideAudioProcessorEditor::init() {
     localTimeSigNumerator_ = stepData_->getlocalTimeSigNumerator();
     localTimeSignDenominator_ = stepData_->getlocalTimeSigDenominator();
     
-    //Initialize parameters
+    //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
+    initComponents();
+    
+    //Add sync button
+    syncButton_.setButtonText("Sync");
+    syncButton_.addListener(this);
+    addAndMakeVisible(&syncButton_);
+    
+    //Give stepData pointer to the processor
+    //audioProcessor_.setStepData(stepData_);
+    stepData_->setNumRows(numrows_);
+    
+    // Make sure that before the constructor has finished, you've set the
+    // editor's size to whatever you need it to be.
+    setSize (700, 400);
+    
+    //Start the timer
+    startTime_ = juce::Time::getMillisecondCounterHiRes() * 0.001;
+    startTimer(10);
+}
+
+void KlideAudioProcessorEditor::initComponents()
+{
+    //Initialize parameters values
     playVec_ = stepData_->getPlayVec();
     pulseVec_ = stepData_->getPulseVec();
     intervalVec_ = stepData_->getIntervalVec();
@@ -46,23 +68,6 @@ void KlideAudioProcessorEditor::init() {
     
     notesVec_ = stepData_->getNotesVec();
     
-    //Sync Button
-    syncButton_.setButtonText("Sync");
-    syncButton_.addListener(this);
-    addAndMakeVisible(&syncButton_);
-    
-    //Text box for tests, to remove later
-    addAndMakeVisible(&testBox_);
-    testBox_.setMultiLine (true);
-    testBox_.setReturnKeyStartsNewLine (true);
-    testBox_.setReadOnly (true);
-    testBox_.setScrollbarsShown (true);
-    testBox_.setCaretVisible (false);
-    testBox_.setPopupMenuEnabled (true);
-    testBox_.setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x32ffffff));
-    testBox_.setColour (juce::TextEditor::outlineColourId, juce::Colour (0x1c000000));
-    testBox_.setColour (juce::TextEditor::shadowColourId, juce::Colour (0x16000000));
-    
     //int currentStep = 0;
     std::vector< std::vector<int> > slideRange = stepData_->getIntervalSliderRangeVec_();
     std::vector< std::vector<int> > pulseRange = stepData_->getPulseSliderRangeVec_();
@@ -71,8 +76,7 @@ void KlideAudioProcessorEditor::init() {
     std::vector< std::vector<int> > frequencyRange = stepData_->getFrequencySliderRangeVec_();
     std::vector< std::vector<float> > resonanceRange = stepData_->getResonanceSliderRangeVec_();
     
-    
-    
+    //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
     for(int kk=0;kk<numrows_;kk++)
     {
         int currentStep = stepData_->getGlobalStep(kk);
@@ -100,8 +104,8 @@ void KlideAudioProcessorEditor::init() {
         juce::TextButton* openButton = (juce::TextButton*)c->getChildComponent(0);
         openButton->addListener(this);
         
-        juce::TextButton* startButton = (juce::TextButton*)c->getChildComponent(1);
-        startButton->addListener(this);
+        juce::TextButton* playButton = (juce::TextButton*)c->getChildComponent(1);
+        playButton->addListener(this);
         
         juce::TextButton* stopButton = (juce::TextButton*)c->getChildComponent(2);
         stopButton->addListener(this);
@@ -140,19 +144,8 @@ void KlideAudioProcessorEditor::init() {
         
         addAndMakeVisible(c);
         controlsArray_.add(c);
+        
     }
-    
-    //Give stepData pointer to the processor
-    //processor_.setStepData(stepData_);
-    stepData_->setNumRows(numrows_);
-    
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (700, 400);
-    
-    //Start the timer
-    startTime_ = juce::Time::getMillisecondCounterHiRes() * 0.001;
-    startTimer(10);
 }
 
 KlideAudioProcessorEditor::~KlideAudioProcessorEditor()
@@ -197,7 +190,7 @@ void KlideAudioProcessorEditor::timerCallback()
     /*
      In case we need to test the sync with the host in the testBox
      
-     String m = "info : " + processor_.getInfo();
+     String m = "info : " + audioProcessor_.getInfo();
      
      testBox_.moveCaretToTop(1);
      testBox_.insertTextAtCaret (m + newLine);
@@ -279,7 +272,7 @@ void KlideAudioProcessorEditor::openButtonClicked(int row)
     {
         juce::File file (chooser.getResult());
         
-        processor_.getSynth()->setSample(stepData_->getNote(row), file.getFullPathName());
+        audioProcessor_.getSynth()->setSample(stepData_->getNote(row), file.getFullPathName());
     }
     
     
@@ -499,7 +492,7 @@ void KlideAudioProcessorEditor::gainValueChanged(juce::Slider *slider, int row)
 {
     gainVec_[row] = slider->getValue();
     
-    processor_.setGain(slider->getValue(), row);
+    audioProcessor_.setGain(slider->getValue(), row);
     
     //2022 memorize the new gain
     stepData_->setGainVec(row, slider->getValue());
@@ -549,8 +542,8 @@ void KlideAudioProcessorEditor::syncButtonClicked()
 {
     
     //std::vector< std::vector<bool> > statesArray = getStatesArray();
-    //processor_.setStatesArray(statesArray);
-    processor_.setSyncOn(1);
+    //audioProcessor_.setStatesArray(statesArray);
+    audioProcessor_.setSyncOn(1);
     
 }
 

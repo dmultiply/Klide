@@ -79,6 +79,11 @@ void CustomSamplerVoice::renderNextBlock(juce::AudioSampleBuffer &outputBuffer, 
    */
 }
 
+void CustomSamplerVoice::setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter)
+{
+    filter_ = filter;
+}
+
 void CustomSamplerVoice::setLevel(float level)
 {
     level_ = level;

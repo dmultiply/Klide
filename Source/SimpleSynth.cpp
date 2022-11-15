@@ -171,8 +171,10 @@ int SimpleSynth::getVoiceNumber(int noteNumber)
     return (noteNumber - 60)/10;
 }
 
+/*
 void SimpleSynth::setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter, DSPSynthesiserVoice* voice)
 {
     voice->setFilter(filter);
 }
+ */
 

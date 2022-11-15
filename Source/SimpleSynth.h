@@ -29,7 +29,7 @@ public:
     int getSoundIndex(int noteNumber);
     
     void renderVoices (juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
-    void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter, DSPSynthesiserVoice* voice);
+    //void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter, DSPSynthesiserVoice* voice);
     
 private:
     // manager object that finds an appropriate way to decode various audio files.  Used with SampleSound objects.

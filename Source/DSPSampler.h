@@ -127,10 +127,13 @@ public:
     void pitchWheelMoved (int newValue) override;
     void controllerMoved (int controllerNumber, int newValue) override;
     
-    //Added by Mael 2022
-    void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter);
+    void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
     
     void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
+    
+    void updateFilter(int frequency, float resonance);
+    void setADSRParams(float attack, float sustain, float decay, float release);
+    
     using DSPSynthesiserVoice::renderNextBlock;
     
 private:
@@ -140,11 +143,15 @@ private:
     float lgain = 0, rgain = 0;
     
     ADSR adsr;
+    juce::ADSR::Parameters adsrParams;
     
-    juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter_ = NULL;
+    //Filter
+    juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> > lowPassFilter_;
     
-    AudioSampleBuffer dspBuffer_;
+    bool isPrepared {false};
     
+    int sampleRate_ {44100};
+        
     JUCE_LEAK_DETECTOR (DSPSamplerVoice)
 };
 
