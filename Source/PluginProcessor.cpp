@@ -112,28 +112,14 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     synth_.setCurrentPlaybackSampleRate(sampleRate);
     
+    //Prepare the filtering in each voice of the synth
     for (int i = 0; i<synth_.getNumVoices();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
             voice->prepareToPlay(sampleRate,samplesPerBlock,getTotalNumOutputChannels());
         }
     }
-    
-    /*
-    //Filter
-    juce::dsp::ProcessSpec spec;
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumOutputChannels();
-    
-    lowPassFilter_.prepare(spec);
-    lowPassFilter_.reset();
-    
-    for(int kk=0;kk<lowPassFilterVec_.size();kk++) {
-        lowPassFilterVec_[kk].prepare(spec);
-        lowPassFilterVec_[kk].reset();
-    }
-     */
+ 
 }
 
 void KlideAudioProcessor::releaseResources()
@@ -173,7 +159,7 @@ void KlideAudioProcessor::setADSRParams()
     for (int i = 0; i<stepData_->getNumRows();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
-            voice->setADSRParams(0.1f,0.1f,0.1f,0.1f);
+            voice->setADSRParams(0.1f,0.1f,1.0f,0.2f);
         }
     }
 }

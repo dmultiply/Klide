@@ -74,6 +74,7 @@ void DSPSamplerVoice::startNote (int midiNoteNumber, float velocity, DSPSynthesi
         
         adsr.setSampleRate (sound->sourceSamplerate);
         adsr.setParameters (sound->params);
+        //adsr.setParameters (adsrParams);
         
         adsr.noteOn();
     }
@@ -170,15 +171,9 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             dspBuffer_.clear();
         }
         
-        
-        //copyBuffer.makeCopyOf(data);
-        
         for (int i = 0; i<data.getNumChannels();i++) {
             dspBuffer_.copyFrom (i, 0, data, i, sourceSamplePosition, endBuffer);
         }
-        
-
-        //AudioBuffer<float> dspBuffer(copyBuffer.getArrayOfWritePointers(), copyBuffer.getNumChannels(), sourceSamplePosition, endBuffer);
         
         juce::dsp::AudioBlock<float> block(dspBuffer_);
         lowPassFilter_.process(juce::dsp::ProcessContextReplacing<float> (block));

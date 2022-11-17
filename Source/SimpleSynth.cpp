@@ -12,7 +12,7 @@
 #include "SimpleSynth.h"
 #define MAX_VOICES 16
 
-using namespace juce;
+//using namespace juce;
 
 SimpleSynth::SimpleSynth() {
     setNoteStealingEnabled(false);
@@ -103,7 +103,9 @@ void SimpleSynth::setSample(int noteNumber, juce::String name) {
     removeSound(index);
     
     //TODO : put the name
-    addSound(new DSPSamplerSound("anyname", *reader, oneNote, noteNumber, 0, 0.2, 2.0));
+    //addSound(new DSPSamplerSound("anyname", *reader, oneNote, noteNumber, 0, 0.2, 2.0));
+    addSound(new DSPSamplerSound("anyname", *reader, oneNote, noteNumber, 0.1f, 10.0f, 10.0f));
+
     
 }
 
