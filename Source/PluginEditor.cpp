@@ -16,9 +16,10 @@ KlideAudioProcessorEditor::KlideAudioProcessorEditor (KlideAudioProcessor& p)
     //Get StepSequencerData from the AudioProcessor
     stepData_ = p.getStepData();
     
-    //If a first initialization of stepData has been made initiate with data from stepDataSequencer
-    if(stepData_ != nullptr && stepData_->getInitialized() == true)
+    if(stepData_ != nullptr)
         init();
+    
+    stepData_->isInitialized();
 }
 
 void KlideAudioProcessorEditor::init() {
@@ -44,7 +45,7 @@ void KlideAudioProcessorEditor::init() {
     
     //Give stepData pointer to the processor
     //audioProcessor_.setStepData(stepData_);
-    stepData_->setNumRows(numrows_);
+    
     
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -76,19 +77,30 @@ void KlideAudioProcessorEditor::initComponents()
     std::vector< std::vector<int> > frequencyRange = stepData_->getFrequencySliderRangeVec_();
     std::vector< std::vector<float> > resonanceRange = stepData_->getResonanceSliderRangeVec_();
     
+    restartArray_.clear();
+    
     //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
     for(int kk=0;kk<numrows_;kk++)
     {
         int currentStep = stepData_->getGlobalStep(kk);
-        //Compute a first rhytmic sequence
+        
+        //If a first initialization, generate, else give back sequence, in case it was modified by hand
+         
         std::vector<bool> stepStates;
-        seqGenerator_.compute_bitmap (intervalVec_[kk], pulseVec_[kk]);
-        std::vector<bool> sequence = seqGenerator_.getSequence();
         
-        for(int i=0;i<sequence.size();i++)
-            stepStates.push_back(sequence[i]);
+        if(stepData_->getInitialized() == false) {
+            //Compute a first rhytmic sequence
+            seqGenerator_.compute_bitmap (intervalVec_[kk], pulseVec_[kk]);
+            std::vector<bool> sequence = seqGenerator_.getSequence();
+            
+            for(int i=0;i<sequence.size();i++)
+                stepStates.push_back(sequence[i]);
+        }
         
-        //Sequencers
+        //init Restart Array with the sequence before closing the windows
+        restartArray_.push_back(stepData_->getStatesVec(kk));
+        
+        
         StepSequencerComponent* s = new StepSequencerComponent();
         s->setNumberOfSteps(intervalVec_[kk]);
         s->setNumberOfPulses(pulseVec_[kk]);
@@ -146,11 +158,22 @@ void KlideAudioProcessorEditor::initComponents()
         controlsArray_.add(c);
         
     }
+    /* CHEAT : Put states like they were before closing the window and before the states are reinitialized by the sliders changes
+     TODO : find a better method */
+    if(stepData_->getInitialized() == true){
+        fakeSeqSlider_.setValue(10);
+        fakeSeqSlider_.addListener(this);
+    }
+    
+    addAndMakeVisible(fakeSeqSlider_);
 }
 
 KlideAudioProcessorEditor::~KlideAudioProcessorEditor()
 {
     stopTimer();
+    
+    //Save states in StepData_ before closing of the window
+    stepData_->setStatesArray(getStatesArray());
     
 }
 
@@ -395,6 +418,17 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
             KlideAudioProcessorEditor::resonanceValueChanged(slider, kk);
     }
     
+    //CHEAT (started in the initComponents), Fake slider to put the same sequence that was before closing the window, in case it was changed directly by clicking on the sequence
+    if(isNotRestarted_) {
+        if(&fakeSeqSlider_ == slider){
+            for(int i = 0; i<stepData_->getNumRows();i++)
+                stepSequencerArray_[i]->setStepStates(restartArray_[i]);
+            
+            isNotRestarted_ = false;
+        }
+        
+    }
+    
     
 }
 
@@ -557,3 +591,4 @@ std::vector< std::vector<bool> > KlideAudioProcessorEditor::getStatesArray()
     }
     return statesArray;
 }
+

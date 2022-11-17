@@ -89,6 +89,15 @@ private:
     juce::TextButton syncButton_;
     juce::TextEditor testBox_;
     
+    //CHEAT : Restart sequence if changed directly on the sequencer
+    //Using fake slider, that will be "listened" to after the other sliders
+    //that put a new sequence otherwise
+    juce::Slider fakeSeqSlider_;
+    std::vector< std::vector<bool> > restartArray_;
+    bool isNotRestarted_ {true};
+
+    
+    
     
     transportState state_;
     

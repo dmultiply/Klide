@@ -18,14 +18,17 @@ public:
     StepSequencerData();
     ~StepSequencerData();
     
+    //Steps
     void createNextStep(int row, int step, float timeStamp);
     void next(int row);
         
     void addNextStep(int row, int step);
     void checkStep(const std::vector< std::vector<bool> > &statesArray, std::vector<double> stepTimeVec, int nbSteps, int row);    
-        
+    
+    //Is playing
     bool isPlaying();
     
+    //Compute Steps
     double computeStepDuration(int row);
     int computeAbsoluteStep(int row);
     
@@ -35,32 +38,53 @@ public:
     void setStepTimeVec(const std::vector<double> &stepTimeVec);
     void setStepTime(int row, double stepTime);
     double getStepTime(int row);
+    
+    //States
     void setStatesArray(const std::vector< std::vector<bool> > &statesArray);
+
+    std::vector<bool> getStatesVec(int row);
     void setStates(int row, std::vector<bool> states);
+    
+    //StartTime
     void setStartTime(float startTime);
     float getStartTime();
+    
+    //TimeStamp
     void setTimeStamp(float timeStamp);
     float getTimeStamp();
+    
+    //Intervals
     void setIntervalVec(const std::vector<int> &intervalVec);
     void setIntervalVec(int row, int value);
     std::vector<int> getIntervalVec();
     void setInterval(int row, int interval);
     int getInterval(int row);
+    
+    //Notes
     void setNotesVec(const std::vector<int> &notesVec);
     std::vector<int> getNotesVec();
     void setNote(int row, int note);
     int getNote(int row);
+    
+    //Play
     void setPlayVec(const std::vector<int> &playVec);
     std::vector<int> getPlayVec();
+    
+    //Pulse
     void setPulseVec(const std::vector<int> &pulseVec);
     void setPulseVec(int row, int value);
     std::vector<int> getPulseVec();
+    
+    //Gain
     void setGainVec(const std::vector<float> &gainVec);
     void setGainVec(int row, float value);
     std::vector<float> getGainVec();
     float getGain(int row);
+    
+    //Offset
     void setOffsetVec(int row, float value);
     std::vector<int> getOffsetVec();
+    
     //Filter
     std::vector<int> getFrequencyVec();
     void setFrequencyVec(int row, int value);
@@ -75,25 +99,42 @@ public:
     std::vector< std::vector<int> > getFrequencySliderRangeVec_();
     std::vector< std::vector<float> > getResonanceSliderRangeVec_();
     
-    
+    //Play
     void setPlay(int row, int play);
     int getPlay(int row);
+    
+    //Global Step
     int getGlobalStep(int row);
     void setGlobalStep(int row, int step);
+    
+    //Global Current Step Vec
+    std::vector<int> getGlobalCurrentStepVec();
+    
+    //Current Note
     int getCurrentNote(int row);
     float getCurrentNoteTime(int row);
+    
+    //Num rows
     int getNumRows();
     void setNumRows(int numRows);
-    void setBpm(int bpm);
-    int getBpm();
-    bool getInitialized();
-    std::vector<int> getGlobalCurrentStepVec();
+    
+    //No row on
     void setNoRowOn(bool noRowOn);
     bool getNoRowOn();
+    
+    //BPM
+    void setBpm(int bpm);
+    int getBpm();
+    
+    //Local Time signature
     int getlocalTimeSigNumerator();
     void setlocalTimeSigNumerator(int localTimeSigNumerator);
     int getlocalTimeSigDenominator();
     void setlocalTimeSigDenominator(int localTimeSigDenominator);
+    
+    //Initialized
+    bool getInitialized();
+    void isInitialized();
     
 private:    
     int sampleRate_;
@@ -101,6 +142,7 @@ private:
     int bpm_;
     
     std::vector< std::vector<bool> > statesArray_;
+    
     std::vector<double> stepTimeVec_;
     std::vector<int> globalStepVec_;
 
@@ -135,7 +177,7 @@ private:
     int localTimeSignDenominator_;
     
     //check if the StepSequencerData has been launched one time already
-    bool initialized_;
+    bool initialized_ { false };
     
     
     

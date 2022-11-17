@@ -10,7 +10,7 @@
 
 #include "StepSequencerData.h"
 
-StepSequencerData::StepSequencerData():sampleRate_(44100),bpm_(100),syncOn_(0),startTime_(0),timeStamp_(-1), initialized_(1)
+StepSequencerData::StepSequencerData():sampleRate_(44100),bpm_(100),syncOn_(0),startTime_(0),timeStamp_(-1)
 {
     numRows_ = 4;
     
@@ -468,11 +468,6 @@ int StepSequencerData::getBpm()
     return bpm_;
 }
 
-bool StepSequencerData::getInitialized()
-{
-    return initialized_;
-}
-
 std::vector<int> StepSequencerData::getGlobalCurrentStepVec()
 {
     return globalCurrentStepVec_;
@@ -507,4 +502,22 @@ void StepSequencerData::setlocalTimeSigDenominator(int localTimeSigDenominator)
 {
     localTimeSignDenominator_ = localTimeSigDenominator;
 }
+
+std::vector<bool> StepSequencerData::getStatesVec(int row)
+{
+    jassert(row<statesArray_.size());
+    
+    return(statesArray_[row]);
+}
+
+void StepSequencerData::isInitialized()
+{
+    initialized_ = true;
+}
+
+bool StepSequencerData::getInitialized()
+{
+    return initialized_;
+}
+
 

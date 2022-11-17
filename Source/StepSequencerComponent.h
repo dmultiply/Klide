@@ -38,7 +38,7 @@ public:
     void setOffset(int num);
     void setCurrentStep(int num);
     void setStepStates(std::vector<bool> states);
-    
+            
 private:
     
     //Step Sequencer
@@ -50,7 +50,7 @@ private:
     int offset_;
     int currentStep_;
     std::vector<bool> stepStates_;
-        
+            
 };
 
 

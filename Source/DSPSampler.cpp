@@ -102,8 +102,10 @@ void DSPSamplerVoice::controllerMoved (int /*controllerNumber*/, int /*newValue*
 void DSPSamplerVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
     
+    //SampleRate
     sampleRate_ = sampleRate;
     
+    //ADSR
     adsr.setSampleRate(sampleRate);
     
     //Filter
@@ -115,6 +117,10 @@ void DSPSamplerVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int 
     lowPassFilter_.prepare(spec);
     lowPassFilter_.reset();
     
+    dspBuffer_.setSize(outputChannels, samplesPerBlock);
+    dspBuffer_.clear();
+    
+    //Bool to check if the prepareToPlay was called
     isPrepared = true;
 }
 
@@ -158,24 +164,35 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             endBuffer = data.getNumSamples()-sourceSamplePosition;
         
        
-        AudioBuffer<float> copyBuffer;
-        copyBuffer.makeCopyOf(data);
- 
-
-        AudioBuffer<float> dspBuffer(copyBuffer.getArrayOfWritePointers(), copyBuffer.getNumChannels(), sourceSamplePosition, endBuffer);
+        //AudioBuffer<float> copyBuffer;
+        if(dspBuffer_.getNumChannels() != data.getNumChannels() || dspBuffer_.getNumSamples() != endBuffer){
+            dspBuffer_.setSize(data.getNumChannels(),endBuffer);
+            dspBuffer_.clear();
+        }
         
-        juce::dsp::AudioBlock<float> block(dspBuffer);
+        
+        //copyBuffer.makeCopyOf(data);
+        
+        for (int i = 0; i<data.getNumChannels();i++) {
+            dspBuffer_.copyFrom (i, 0, data, i, sourceSamplePosition, endBuffer);
+        }
+        
+
+        //AudioBuffer<float> dspBuffer(copyBuffer.getArrayOfWritePointers(), copyBuffer.getNumChannels(), sourceSamplePosition, endBuffer);
+        
+        juce::dsp::AudioBlock<float> block(dspBuffer_);
         lowPassFilter_.process(juce::dsp::ProcessContextReplacing<float> (block));
         
-        const float* const dspL = copyBuffer.getReadPointer (0);
-        const float* const dspR = copyBuffer.getNumChannels() > 1 ? copyBuffer.getReadPointer (1) : nullptr;
+        const float* const dspL = dspBuffer_.getReadPointer (0);
+        const float* const dspR = dspBuffer_.getNumChannels() > 1 ? dspBuffer_.getReadPointer (1) : nullptr;
         
         int dspBufferSamplePosition = 0;
         
         while (--numSamples >= 0)
         {
-            auto pos = (int) sourceSamplePosition;
-            auto alpha = (float) (sourceSamplePosition - pos);
+            //auto pos = (int) sourceSamplePosition;
+            auto pos = (int) dspBufferSamplePosition;
+            auto alpha = (float) (dspBufferSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
             
             // just using a very simple linear interpolation here..
@@ -198,6 +215,7 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             }
             
             sourceSamplePosition += pitchRatio;
+            dspBufferSamplePosition += pitchRatio;
             
             if (sourceSamplePosition > playingSound->length)
             {

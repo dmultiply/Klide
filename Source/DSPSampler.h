@@ -148,6 +148,8 @@ private:
     //Filter
     juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> > lowPassFilter_;
     
+    AudioBuffer<float> dspBuffer_;
+    
     bool isPrepared {false};
     
     int sampleRate_ {44100};
