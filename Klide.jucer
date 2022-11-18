@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="l19ww6" name="Klide" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              pluginCharacteristicsValue="pluginProducesMidiOut" pluginFormats="buildAU,buildStandalone,buildVST3"
+              pluginCharacteristicsValue="pluginProducesMidiOut" pluginFormats="buildStandalone,buildVST3"
               defines="JUCE_MODAL_LOOPS_PERMITTED=1" pluginManufacturer="Mael"
               pluginVST3Category="Instrument">
   <MAINGROUP id="SRcIE6" name="Klide">
