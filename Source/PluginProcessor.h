@@ -70,14 +70,15 @@ public:
     
     juce::String getInfo();
     
-    void setADSRParams();
+    void updateADSRParams();
+    juce::ADSR::Parameters getADSRParams(int row);
     
-    //juce::AudioProcessorValueTreeState tree_;
+    juce::AudioProcessorValueTreeState tree_;
     
 private:
     
     //In case of using a tree
-    //juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     
     //==============================================================================
     

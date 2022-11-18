@@ -19,7 +19,8 @@ KlideAudioProcessor::KlideAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ),
+                       ), tree_(*this, nullptr, "Parameters", createParameters()),
+
 sampleRate_ (44100.0),
 syncOn_(0)
 #endif
@@ -35,9 +36,22 @@ syncOn_(0)
     
     //Initialize StepSequencerData
     stepData_ = new StepSequencerData();
-    
+       
 }
 
+juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    params.push_back(std::make_unique<juce::AudioParameterInt>("ROWCHOICE", "Rowchoice", 0,3,0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.0f,1.0f,0.01f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.0f,2.0f,0.1f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f,4.0f,1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.0f,8.0f,0.5f));
+    
+    
+    return {params.begin(),params.end()};
+}
+    
 KlideAudioProcessor::~KlideAudioProcessor()
 {
 }
@@ -112,11 +126,19 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     synth_.setCurrentPlaybackSampleRate(sampleRate);
     
+    //ADSR Params
+    auto attack = tree_.getRawParameterValue("ATTACK");
+    auto decay = tree_.getRawParameterValue("DECAY");
+    auto sustain = tree_.getRawParameterValue("SUSTAIN");
+    auto release = tree_.getRawParameterValue("RELEASE");
+    
     //Prepare the filtering in each voice of the synth
+    //Set ADSR
     for (int i = 0; i<synth_.getNumVoices();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
             voice->prepareToPlay(sampleRate,samplesPerBlock,getTotalNumOutputChannels());
+            voice->setADSRParams(attack->load(),decay->load(),sustain->load(),release->load());
         }
     }
  
@@ -154,15 +176,36 @@ bool KlideAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void KlideAudioProcessor::setADSRParams()
+void KlideAudioProcessor::updateADSRParams()
 {
+    auto attack = tree_.getRawParameterValue("ATTACK");
+    auto decay = tree_.getRawParameterValue("DECAY");
+    auto sustain = tree_.getRawParameterValue("SUSTAIN");
+    auto release = tree_.getRawParameterValue("RELEASE");
+    
+    auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
+    
     for (int i = 0; i<stepData_->getNumRows();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
-            voice->setADSRParams(0.1f,0.1f,1.0f,0.2f);
+            if(i==rowChoice->load())
+                voice->setADSRParams(attack->load(),decay->load(),sustain->load(),release->load());
         }
     }
 }
+
+juce::ADSR::Parameters KlideAudioProcessor::getADSRParams(int row)
+{
+    juce::ADSR::Parameters adsrParams;
+    if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(row))){
+        adsrParams = voice->getADSRParams();
+    }
+    
+    return adsrParams;
+        
+        
+}
+
 
 void KlideAudioProcessor::updateFilter()
 {
@@ -286,7 +329,7 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         
         
         updateFilter();
-        setADSRParams();       
+        updateADSRParams();
         
         synth_.getVoice(synth_.getVoiceNumber(60))->renderNextBlock(buffer, 0, buffer.getNumSamples());
         synth_.getVoice(synth_.getVoiceNumber(70))->renderNextBlock(buffer, 0, buffer.getNumSamples());

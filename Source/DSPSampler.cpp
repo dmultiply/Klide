@@ -73,8 +73,8 @@ void DSPSamplerVoice::startNote (int midiNoteNumber, float velocity, DSPSynthesi
         rgain = velocity;
         
         adsr.setSampleRate (sound->sourceSamplerate);
-        adsr.setParameters (sound->params);
-        //adsr.setParameters (adsrParams);
+        //adsr.setParameters (sound->params);
+        adsr.setParameters (adsrParams);
         
         adsr.noteOn();
     }
@@ -125,13 +125,20 @@ void DSPSamplerVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int 
     isPrepared = true;
 }
 
-void DSPSamplerVoice::setADSRParams(float attack, float sustain, float decay, float release)
+void DSPSamplerVoice::setADSRParams(float attack, float decay, float sustain, float release)
 {
     adsrParams.attack = attack;
-    adsrParams.sustain = sustain;
     adsrParams.decay = decay;
+    adsrParams.sustain = sustain;
     adsrParams.release = release;
+
 }
+
+juce::ADSR::Parameters DSPSamplerVoice::getADSRParams()
+{
+    return adsrParams;
+}
+
 
 void DSPSamplerVoice::updateFilter(int frequency, float resonance)
 {
@@ -218,9 +225,6 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
                 break;
             }
         }
-      
-       //ADSR
-        adsr.applyEnvelopeToBuffer(outputBuffer, startSample, numSamplesMem);
         
     }//end if
 }

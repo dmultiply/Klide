@@ -22,6 +22,8 @@
 
 #include "CustomKnob.h"
 
+#include "adsr_editor.h"
+
 //==============================================================================
 /**
 */
@@ -80,7 +82,7 @@ private:
     std::vector< std::vector<bool> > getStatesArray();
     
     // =========== Variables
-    int numrows_;
+    int numrows_ {4};
     
     juce::OwnedArray<ControlsComponent> controlsArray_;
     juce::OwnedArray<StepSequencerComponent> stepSequencerArray_;
@@ -88,6 +90,32 @@ private:
     //Buttons
     juce::TextButton syncButton_;
     juce::TextEditor testBox_;
+
+    //Row choice
+    juce::Slider rowChoiceSlider_;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> rowChoiceSliderAttachment_;
+    
+    //ADSR sliders
+    juce::Slider attackSlider_;
+    juce::Slider decaySlider_;
+    juce::Slider sustainSlider_;
+    juce::Slider releaseSlider_;
+    
+    std::vector<juce::ADSR::Parameters> adsrParamsVec_;
+    
+    
+    //Sliders Labels
+    juce::Label rowChoiceLabel_;
+    juce::Label attackLabel_;
+    juce::Label decayLabel_;
+    juce::Label sustainLabel_;
+    juce::Label releaseLabel_;
+    
+    //Attachments
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackSliderAttachment_;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decaySliderAttachment_;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainSliderAttachment_;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment_;
     
     //CHEAT : Restart sequence if changed directly on the sequencer
     //Using fake slider, that will be "listened" to after the other sliders

@@ -77,6 +77,7 @@ void KlideAudioProcessorEditor::initComponents()
     std::vector< std::vector<int> > frequencyRange = stepData_->getFrequencySliderRangeVec_();
     std::vector< std::vector<float> > resonanceRange = stepData_->getResonanceSliderRangeVec_();
     
+    //Clear restart Array
     restartArray_.clear();
     
     //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
@@ -101,6 +102,7 @@ void KlideAudioProcessorEditor::initComponents()
         restartArray_.push_back(stepData_->getStatesVec(kk));
         
         
+        //Build Step Sequencer components. They will be added to a juce::OwnedArray, that will destroy them when it will be destroyed itself
         StepSequencerComponent* s = new StepSequencerComponent();
         s->setNumberOfSteps(intervalVec_[kk]);
         s->setNumberOfPulses(pulseVec_[kk]);
@@ -166,6 +168,112 @@ void KlideAudioProcessorEditor::initComponents()
     }
     
     addAndMakeVisible(fakeSeqSlider_);
+    
+    //adsrParamsVec_ to save sliders positions
+    adsrParamsVec_.clear();
+    for(int row = 0; row<numrows_;row++)
+    {
+        juce::ADSR::Parameters adsrParams;
+        adsrParams.attack = audioProcessor_.tree_.getRawParameterValue("ATTACK")->load();
+        adsrParams.decay = audioProcessor_.tree_.getRawParameterValue("DECAY")->load();
+        adsrParams.sustain = audioProcessor_.tree_.getRawParameterValue("SUSTAIN")->load();
+        adsrParams.release = audioProcessor_.tree_.getRawParameterValue("RELEASE")->load();
+        
+        adsrParamsVec_.push_back(adsrParams);
+    }
+    
+    //Row choice slider
+    rowChoiceSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    rowChoiceSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 40, 30);
+    rowChoiceSlider_.setTextBoxIsEditable(true);
+    rowChoiceSlider_.addListener(this);
+    addAndMakeVisible(rowChoiceSlider_);
+    
+    //Row Choice Attachment
+    rowChoiceSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ROWCHOICE", rowChoiceSlider_);
+    
+    //Row Choice Label
+    rowChoiceLabel_.setText ("Row", juce::dontSendNotification);
+    rowChoiceLabel_.setFont (10);
+    rowChoiceLabel_.setJustificationType(4);
+    rowChoiceLabel_.attachToComponent (&rowChoiceSlider_, false);
+    addAndMakeVisible (rowChoiceLabel_);
+    
+    //ADSR Sliders
+    //A
+    attackSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    attackSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+    attackSlider_.setTextBoxIsEditable(true);
+    attackSlider_.addListener(this);
+    addAndMakeVisible(attackSlider_);
+    
+    //D
+    decaySlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    decaySlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+    decaySlider_.setTextBoxIsEditable(true);
+    decaySlider_.addListener(this);
+    addAndMakeVisible(decaySlider_);
+    
+    //S
+    sustainSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    sustainSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+    sustainSlider_.setTextBoxIsEditable(true);
+    sustainSlider_.addListener(this);
+    addAndMakeVisible(sustainSlider_);
+    
+    //R
+    releaseSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    releaseSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+    releaseSlider_.setTextBoxIsEditable(true);
+    releaseSlider_.addListener(this);
+    addAndMakeVisible(releaseSlider_);
+    
+    //ADSR Attachment
+    //A
+    attackSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ATTACK", attackSlider_);
+    
+    //D
+    decaySliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"DECAY", decaySlider_);
+    
+    //S
+    sustainSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"SUSTAIN", sustainSlider_);
+    
+    //R
+    releaseSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"RELEASE", releaseSlider_);
+    
+    //ADSR Label
+    //A
+    attackLabel_.setText ("A", juce::dontSendNotification);
+    attackLabel_.setFont (10);
+    attackLabel_.setJustificationType(4);
+    attackLabel_.attachToComponent (&attackSlider_, false);
+    addAndMakeVisible (attackLabel_);
+    
+    //D
+    decayLabel_.setText ("D", juce::dontSendNotification);
+    decayLabel_.setFont (10);
+    decayLabel_.setJustificationType(4);
+    decayLabel_.attachToComponent (&decaySlider_, false);
+    addAndMakeVisible (decayLabel_);
+    
+    //S
+    sustainLabel_.setText ("S", juce::dontSendNotification);
+    sustainLabel_.setFont (10);
+    sustainLabel_.setJustificationType(4);
+    sustainLabel_.attachToComponent (&sustainSlider_, false);
+    addAndMakeVisible (sustainLabel_);
+    
+    //R
+    releaseLabel_.setText ("R", juce::dontSendNotification);
+    releaseLabel_.setFont (10);
+    releaseLabel_.setJustificationType(4);
+    releaseLabel_.attachToComponent (&releaseSlider_, false);
+    addAndMakeVisible (releaseLabel_);
+    
+    
+    
+    
+    
 }
 
 KlideAudioProcessorEditor::~KlideAudioProcessorEditor()
@@ -250,21 +358,32 @@ void KlideAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
+    //Areas, for the synth, separated in controls and sequencer
     juce::Rectangle<int> area = getLocalBounds();
-    juce::Rectangle<int> synthArea = area.removeFromTop(area.getHeight()*4/5);
+    juce::Rectangle<int> synthArea = area.removeFromTop(area.getHeight()*30/50);
     juce::Rectangle<int> controlsArea = synthArea.removeFromLeft(area.getWidth()*3/5);
     
-    const int controlsHeight = synthArea.getHeight()/5;
+    const int controlsHeight = synthArea.getHeight()* 12/50;
     
     for(int kk=0;kk<numrows_;kk++) {
         controlsArray_[kk]->setBounds(controlsArea.removeFromTop(controlsHeight));
-        stepSequencerArray_[kk]->setBounds(synthArea.removeFromTop(controlsHeight).reduced(controlsHeight/5));
+        stepSequencerArray_[kk]->setBounds(synthArea.removeFromTop(controlsHeight).reduced(controlsHeight/10));
     }
     
-    juce::Rectangle<int> moreControlsArea = area.removeFromTop(area.getHeight());
+    //More controls, under the synth
     
-    syncButton_.setBounds(moreControlsArea.removeFromRight(100).reduced(10));
-    //testBox_.setBounds(area.removeFromTop(controlsHeight));
+    //ADSR editor
+    rowChoiceSlider_.setBounds(area.removeFromLeft(40).reduced(10));
+    attackSlider_.setBounds(area.removeFromLeft(50).reduced(10));
+    decaySlider_.setBounds(area.removeFromLeft(50).reduced(10));
+    sustainSlider_.setBounds(area.removeFromLeft(50).reduced(10));
+    releaseSlider_.setBounds(area.removeFromLeft(50).reduced(10));
+    
+    
+    //Sync Button
+    syncButton_.setBounds(area.removeFromRight(100).reduced(10));
+    
+    
 }
 
 void KlideAudioProcessorEditor::buttonClicked (juce::Button* button)
@@ -428,6 +547,27 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         }
         
     }
+    
+    if(&attackSlider_ == slider){
+        adsrParamsVec_[rowChoiceSlider_.getValue()].attack = slider->getValue();
+    }
+    if(&decaySlider_ == slider){
+        adsrParamsVec_[rowChoiceSlider_.getValue()].decay = slider->getValue();
+    }
+    if(&sustainSlider_ == slider){
+        adsrParamsVec_[rowChoiceSlider_.getValue()].sustain = slider->getValue();
+    }
+    if(&releaseSlider_ == slider){
+        adsrParamsVec_[rowChoiceSlider_.getValue()].release = slider->getValue();
+    }
+    
+    if(&rowChoiceSlider_ == slider){
+        attackSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].attack);
+        decaySlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].decay);
+        sustainSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].sustain);
+        releaseSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].release);
+    }
+        
     
     
 }

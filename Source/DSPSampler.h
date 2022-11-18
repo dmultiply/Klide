@@ -132,7 +132,8 @@ public:
     void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
     
     void updateFilter(int frequency, float resonance);
-    void setADSRParams(float attack, float sustain, float decay, float release);
+    void setADSRParams(float attack, float decay, float sustain, float release);
+    juce::ADSR::Parameters getADSRParams();
     
     using DSPSynthesiserVoice::renderNextBlock;
     

@@ -7,6 +7,8 @@
               pluginVST3Category="Instrument">
   <MAINGROUP id="SRcIE6" name="Klide">
     <GROUP id="{614E47FB-0328-2114-0775-98239FC1EC96}" name="Source">
+      <FILE id="XIFCv5" name="adsr_editor.cpp" compile="1" resource="0" file="Source/adsr_editor.cpp"/>
+      <FILE id="TV1FXp" name="adsr_editor.h" compile="0" resource="0" file="Source/adsr_editor.h"/>
       <FILE id="HXsRk6" name="ControlsComponent.cpp" compile="1" resource="0"
             file="Source/ControlsComponent.cpp"/>
       <FILE id="Kkr5uS" name="ControlsComponent.h" compile="0" resource="0"
