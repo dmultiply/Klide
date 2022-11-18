@@ -48,6 +48,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createP
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f,4.0f,1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.0f,8.0f,0.5f));
     
+    //Pan slider can only take positive values, so we put values from 0 to 2 and we remove 1 to the value at update
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("PAN", "Pan", 0.0f,2.0f,1.0f));
+    
+    
     
     return {params.begin(),params.end()};
 }
@@ -127,10 +131,14 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     synth_.setCurrentPlaybackSampleRate(sampleRate);
     
     //ADSR Params
+    //The same values for all voices at first
     auto attack = tree_.getRawParameterValue("ATTACK");
     auto decay = tree_.getRawParameterValue("DECAY");
     auto sustain = tree_.getRawParameterValue("SUSTAIN");
     auto release = tree_.getRawParameterValue("RELEASE");
+    
+    //Pan
+    auto pan = tree_.getRawParameterValue("PAN");
     
     //Prepare the filtering in each voice of the synth
     //Set ADSR
@@ -139,6 +147,8 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         {
             voice->prepareToPlay(sampleRate,samplesPerBlock,getTotalNumOutputChannels());
             voice->setADSRParams(attack->load(),decay->load(),sustain->load(),release->load());
+            //Pan slider can only take positive values, so we remove 1 to the value at update
+            voice->updatePan(pan->load()-1);
         }
     }
  
@@ -209,6 +219,23 @@ juce::ADSR::Parameters KlideAudioProcessor::getADSRParams(int row)
 
 void KlideAudioProcessor::updateFilter()
 {
+    auto pan = tree_.getRawParameterValue("PAN");
+    auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
+    
+    //Pan slider can only take positive values, so we remove 1 to the value at update
+    
+    for (int i = 0; i<stepData_->getNumRows();i++) {
+        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
+        {
+            if(i==rowChoice->load())
+                voice->updatePan(pan->load()-1);
+        }
+    }
+    
+}
+
+void KlideAudioProcessor::updatePan()
+{
     for (int i = 0; i<stepData_->getNumRows();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
@@ -217,6 +244,7 @@ void KlideAudioProcessor::updateFilter()
     }
     
 }
+
 
 void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
@@ -330,6 +358,7 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         
         updateFilter();
         updateADSRParams();
+        updatePan();
         
         synth_.getVoice(synth_.getVoiceNumber(60))->renderNextBlock(buffer, 0, buffer.getNumSamples());
         synth_.getVoice(synth_.getVoiceNumber(70))->renderNextBlock(buffer, 0, buffer.getNumSamples());

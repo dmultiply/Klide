@@ -78,17 +78,17 @@ ControlsComponent::ControlsComponent()
     
     frequencySlider_.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     frequencySlider_.setTextBoxStyle(juce::Slider::NoTextBox, false, 45, 20);
-    frequencySlider_.setNumDecimalPlacesToDisplay(0);
-    frequencySlider_.setRange(0.001, 5.0, 0.01);
-    frequencySlider_.setRange(0,4,1);
+    //frequencySlider_.setNumDecimalPlacesToDisplay(0);
+    frequencySlider_.setRange(20,20000);
+    frequencySlider_.setSkewFactor(0.2);
     
     addAndMakeVisible (frequencySlider_);
     
     resonanceSlider_.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
     resonanceSlider_.setTextBoxStyle(juce::Slider::NoTextBox, false, 45, 20);
-    resonanceSlider_.setNumDecimalPlacesToDisplay(0);
-    resonanceSlider_.setRange(0.001, 5.0, 0.01);
-    resonanceSlider_.setRange(0,4,1);
+    //resonanceSlider_.setNumDecimalPlacesToDisplay(0);
+    resonanceSlider_.setRange(0.0f,2.0f);
+    resonanceSlider_.setSkewFactor(0.2);
     
     addAndMakeVisible (resonanceSlider_);
 

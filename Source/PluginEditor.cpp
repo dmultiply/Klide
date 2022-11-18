@@ -182,6 +182,13 @@ void KlideAudioProcessorEditor::initComponents()
         adsrParamsVec_.push_back(adsrParams);
     }
     
+    //panVec_ to save Pan Positions
+    panVec_.clear();
+    for(int row = 0; row<numrows_;row++)
+    {
+        panVec_.push_back(audioProcessor_.tree_.getRawParameterValue("PAN")->load());
+    }
+    
     //Row choice slider
     rowChoiceSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
     rowChoiceSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 40, 30);
@@ -204,6 +211,7 @@ void KlideAudioProcessorEditor::initComponents()
     attackSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
     attackSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
     attackSlider_.setTextBoxIsEditable(true);
+    attackSlider_.setSkewFactor(0.2);
     attackSlider_.addListener(this);
     addAndMakeVisible(attackSlider_);
     
@@ -270,7 +278,21 @@ void KlideAudioProcessorEditor::initComponents()
     releaseLabel_.attachToComponent (&releaseSlider_, false);
     addAndMakeVisible (releaseLabel_);
     
+    //Pan Slider
+    panSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    panSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+    panSlider_.setTextBoxIsEditable(true);
+    panSlider_.addListener(this);
+    addAndMakeVisible(panSlider_);
     
+    //Pan attachment
+    panSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"PAN", panSlider_);
+    
+    panLabel_.setText ("pan", juce::dontSendNotification);
+    panLabel_.setFont (10);
+    panLabel_.setJustificationType(4);
+    panLabel_.attachToComponent (&panSlider_, false);
+    addAndMakeVisible (panLabel_);
     
     
     
@@ -373,12 +395,16 @@ void KlideAudioProcessorEditor::resized()
     //More controls, under the synth
     
     //ADSR editor
-    rowChoiceSlider_.setBounds(area.removeFromLeft(40).reduced(10));
+    rowChoiceSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     attackSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     decaySlider_.setBounds(area.removeFromLeft(50).reduced(10));
     sustainSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     releaseSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     
+    //Pan
+    //setBounds(area.removeFromLeft(50).reduced(10));
+    panSlider_.setBounds(area.removeFromLeft(50).reduced(10));
+
     
     //Sync Button
     syncButton_.setBounds(area.removeFromRight(100).reduced(10));
@@ -560,12 +586,17 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
     if(&releaseSlider_ == slider){
         adsrParamsVec_[rowChoiceSlider_.getValue()].release = slider->getValue();
     }
+    if(&panSlider_ == slider){
+        panVec_[rowChoiceSlider_.getValue()] = slider->getValue();
+    }
+    
     
     if(&rowChoiceSlider_ == slider){
         attackSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].attack);
         decaySlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].decay);
         sustainSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].sustain);
         releaseSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].release);
+        panSlider_.setValue(panVec_[rowChoiceSlider_.getValue()]);
     }
         
     

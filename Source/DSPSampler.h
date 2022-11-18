@@ -135,6 +135,8 @@ public:
     void setADSRParams(float attack, float decay, float sustain, float release);
     juce::ADSR::Parameters getADSRParams();
     
+    void updatePan(float pan);
+    
     using DSPSynthesiserVoice::renderNextBlock;
     
 private:
@@ -148,6 +150,9 @@ private:
     
     //Filter
     juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> > lowPassFilter_;
+    
+    juce::dsp::Panner<float> panner_;
+    float pan_ {0};
     
     AudioBuffer<float> dspBuffer_;
     

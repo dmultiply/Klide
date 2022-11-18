@@ -69,6 +69,9 @@ private:
     CustomKnob frequencySlider_;
     CustomKnob resonanceSlider_;
     
+    //Labels
+    juce::Label intervalLabel_;
+    
     
     
     

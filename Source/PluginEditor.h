@@ -101,8 +101,13 @@ private:
     juce::Slider sustainSlider_;
     juce::Slider releaseSlider_;
     
+    //Saving vectors
     std::vector<juce::ADSR::Parameters> adsrParamsVec_;
+    std::vector<float> panVec_;
     
+    //Pan slider
+    juce::Slider panSlider_;
+
     
     //Sliders Labels
     juce::Label rowChoiceLabel_;
@@ -110,12 +115,15 @@ private:
     juce::Label decayLabel_;
     juce::Label sustainLabel_;
     juce::Label releaseLabel_;
+    juce::Label panLabel_;
+
     
     //Attachments
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackSliderAttachment_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decaySliderAttachment_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainSliderAttachment_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment_;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> panSliderAttachment_;
     
     //CHEAT : Restart sequence if changed directly on the sequencer
     //Using fake slider, that will be "listened" to after the other sliders

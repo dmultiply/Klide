@@ -73,6 +73,8 @@ public:
     void updateADSRParams();
     juce::ADSR::Parameters getADSRParams(int row);
     
+    void updatePan();
+    
     juce::AudioProcessorValueTreeState tree_;
     
 private:

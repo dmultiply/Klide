@@ -118,6 +118,9 @@ void DSPSamplerVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int 
     lowPassFilter_.prepare(spec);
     lowPassFilter_.reset();
     
+    panner_.prepare(spec);
+    panner_.reset();
+    
     dspBuffer_.setSize(outputChannels, samplesPerBlock);
     dspBuffer_.clear();
     
@@ -144,6 +147,12 @@ void DSPSamplerVoice::updateFilter(int frequency, float resonance)
 {
     *lowPassFilter_.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate_, frequency, resonance);
 }
+
+void DSPSamplerVoice::updatePan(float pan)
+{
+    pan_ = pan;
+}
+
 
 void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
@@ -184,6 +193,9 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
         
         juce::dsp::AudioBlock<float> block(dspBuffer_);
         lowPassFilter_.process(juce::dsp::ProcessContextReplacing<float> (block));
+        
+        panner_.setPan(pan_);
+        panner_.process(juce::dsp::ProcessContextReplacing<float> (block));
         
         const float* const dspL = dspBuffer_.getReadPointer (0);
         const float* const dspR = dspBuffer_.getNumChannels() > 1 ? dspBuffer_.getReadPointer (1) : nullptr;

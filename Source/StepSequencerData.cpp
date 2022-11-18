@@ -22,19 +22,19 @@ StepSequencerData::StepSequencerData():sampleRate_(44100),bpm_(100),syncOn_(0),s
     pulseVec_ = {3,4,5,2};
     intervalVec_ = {8,8,8,8};
     //gainVec_ = {30,25, 25, 20};
-    gainVec_ = {0.5,0.5, 0.5, 0.5};
+    gainVec_ = {0.5f,0.5f, 0.5f, 0.5f};
     offsetVec_ = {4,1,3,2};
     frequencyVec_ = {6000,6000,6000,6000};
-    resonanceVec_ = {0.5,0.5, 0.5, 0.5};
+    resonanceVec_ = {0.5f,0.5f, 0.5f, 0.5f};
     
     notesVec_ = {60, 70, 80, 90};
     
     intervalSliderRangeVec_ = {{4,32},{4,32},{4,32},{4,32}};
     pulseSliderRangeVec_ = {{0,intervalVec_[0]},{0,intervalVec_[1]},{0,intervalVec_[2]},{0,intervalVec_[3]}};
-    gainSliderRangeVec_ = {{0.0,1.0},{0.0,1.0},{0.0,1.0},{0.0,1.0}};
+    gainSliderRangeVec_ = {{0.0f,1.0f},{0.0f,1.0f},{0.0f,1.0f},{0.0f,1.0f}};
     offsetSliderRangeVec_ = {{0,4},{0,4},{0,4},{0,4}};
-    frequencySliderRangeVec_ = {{10,20000},{10,20000},{10,20000},{10,20000}};
-    resonanceSliderRangeVec_ = {{0.1,10.0},{0.1,10.0},{0.1,10.0},{0.1,10.0}};
+    frequencySliderRangeVec_ = {{20,20000},{10,20000},{10,20000},{10,20000}};
+    resonanceSliderRangeVec_ = {{0.0f,2.0f},{0.0f,2.0f},{0.0f,2.0f},{0.0f,2.0f}};
     
     for(int row=0;row<numRows_;row++)
     {
