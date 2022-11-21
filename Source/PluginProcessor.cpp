@@ -317,7 +317,7 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         }
         
         
-        
+        //
         const int currentSampleNumber =  (int) (currentTime * sampleRate_);
         
         for(int row = 0;row<stepData_->getNumRows();row++)
@@ -345,28 +345,30 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             }
         }
         
-        int voiceNumber = synth_.getVoiceNumber(60);
-        //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
-        voiceNumber = synth_.getVoiceNumber(70);
-        //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
-        voiceNumber = synth_.getVoiceNumber(80);
-        //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
-        voiceNumber = synth_.getVoiceNumber(90);
-        //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
         
-        
-        
-        updateFilter();
-        updateADSRParams();
-        updatePan();
-        
-        synth_.getVoice(synth_.getVoiceNumber(60))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        synth_.getVoice(synth_.getVoiceNumber(70))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        synth_.getVoice(synth_.getVoiceNumber(80))->renderNextBlock(buffer, 0, buffer.getNumSamples());
-        synth_.getVoice(synth_.getVoiceNumber(90))->renderNextBlock(buffer, 0, buffer.getNumSamples());        
-        
-        //synth_.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     }
+    
+    int voiceNumber = synth_.getVoiceNumber(60);
+    //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
+    voiceNumber = synth_.getVoiceNumber(70);
+    //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
+    voiceNumber = synth_.getVoiceNumber(80);
+    //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
+    voiceNumber = synth_.getVoiceNumber(90);
+    //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);
+    
+    
+    
+    updateFilter();
+    updateADSRParams();
+    updatePan();
+    
+    synth_.getVoice(synth_.getVoiceNumber(60))->renderNextBlock(buffer, 0, buffer.getNumSamples());
+    synth_.getVoice(synth_.getVoiceNumber(70))->renderNextBlock(buffer, 0, buffer.getNumSamples());
+    synth_.getVoice(synth_.getVoiceNumber(80))->renderNextBlock(buffer, 0, buffer.getNumSamples());
+    synth_.getVoice(synth_.getVoiceNumber(90))->renderNextBlock(buffer, 0, buffer.getNumSamples());
+    
+    //synth_.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
 double KlideAudioProcessor::computeNextBarSyncTime(juce::AudioPlayHead::CurrentPositionInfo currentPosition, double syncTimeDiff)

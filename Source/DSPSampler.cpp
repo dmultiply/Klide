@@ -180,7 +180,6 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
         else
             endBuffer = data.getNumSamples()-sourceSamplePosition;
         
-       
         //AudioBuffer<float> copyBuffer;
         if(dspBuffer_.getNumChannels() != data.getNumChannels() || dspBuffer_.getNumSamples() != endBuffer){
             dspBuffer_.setSize(data.getNumChannels(),endBuffer);
@@ -233,6 +232,7 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             
             if (sourceSamplePosition > playingSound->length)
             {
+                //Mael 2022 : changed tailOff to true
                 stopNote (0.0f, false);
                 break;
             }
