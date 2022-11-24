@@ -95,14 +95,20 @@ private:
     juce::Slider rowChoiceSlider_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> rowChoiceSliderAttachment_;
     
-    //ADSR sliders
-    juce::Slider attackSlider_;
-    juce::Slider decaySlider_;
-    juce::Slider sustainSlider_;
-    juce::Slider releaseSlider_;
+    //ADSR sliders Vec
+    juce::OwnedArray<juce::Slider> attackSliderVec_;
+    juce::OwnedArray<juce::Slider> decaySliderVec_;
+    juce::OwnedArray<juce::Slider> sustainSliderVec_;
+    juce::OwnedArray<juce::Slider> releaseSliderVec_;
+    
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > attackAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > decayAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > sustainAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > releaseAttachmentVec_;
+
     
     //Saving vectors
-    std::vector<juce::ADSR::Parameters> adsrParamsVec_;
+    //std::vector<juce::ADSR::Parameters> adsrParamsVec_;
     std::vector<float> panVec_;
     
     //Pan slider
@@ -119,10 +125,6 @@ private:
 
     
     //Attachments
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackSliderAttachment_;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decaySliderAttachment_;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainSliderAttachment_;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> panSliderAttachment_;
     
     //CHEAT : Restart sequence if changed directly on the sequencer

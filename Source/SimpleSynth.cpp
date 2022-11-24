@@ -164,7 +164,7 @@ void SimpleSynth::renderVoices (AudioBuffer<float>& buffer, int startSample, int
 
 void SimpleSynth::setVoiceLevel(float level, int row)
 {
-    ((CustomSamplerVoice*)voices[row])->setLevel(level);
+    //((CustomSamplerVoice*)voices[row])->setLevel(level);
 }
 
 //The voice that will play the sample is chosen in noteOn, via getVoiceNumber

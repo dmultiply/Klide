@@ -19,10 +19,6 @@
             file="Source/CustomKnobLookAndFeel.cpp"/>
       <FILE id="OuIYSj" name="CustomKnobLookAndFeel.h" compile="0" resource="0"
             file="Source/CustomKnobLookAndFeel.h"/>
-      <FILE id="kG8B6R" name="CustomSamplerVoice.cpp" compile="1" resource="0"
-            file="Source/CustomSamplerVoice.cpp"/>
-      <FILE id="GEZtNH" name="CustomSamplerVoice.h" compile="0" resource="0"
-            file="Source/CustomSamplerVoice.h"/>
       <FILE id="HUqlUG" name="DSPSampler.cpp" compile="1" resource="0" file="Source/DSPSampler.cpp"/>
       <FILE id="FYR6d9" name="DSPSampler.h" compile="0" resource="0" file="Source/DSPSampler.h"/>
       <FILE id="PG0Sdi" name="DSPSynthesiser.cpp" compile="1" resource="0"

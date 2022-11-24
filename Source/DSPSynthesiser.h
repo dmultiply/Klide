@@ -242,6 +242,8 @@ class DSPSynthesiserSound    : public ReferenceCountedObject
          to have finished, e.g. if it's playing a sample and the sample finishes.
          */
         void clearCurrentNote();
+        std::vector<int> currentlyPlayingNotesVec_;
+
         
         
     private:

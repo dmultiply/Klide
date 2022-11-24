@@ -42,11 +42,16 @@ syncOn_(0)
 juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createParameters()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    
     params.push_back(std::make_unique<juce::AudioParameterInt>("ROWCHOICE", "Rowchoice", 0,3,0));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", 0.0f,1.0f,0.01f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", 0.0f,2.0f,0.1f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", 0.0f,4.0f,1.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", 0.0f,8.0f,0.5f));
+    
+    for(int row = 0;row<4;row++)
+    {
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK"+std::to_string(row), "Attack"+std::to_string(row), 0.0f,1.0f,0.01f));
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY"+std::to_string(row), "Decay"+std::to_string(row), 0.0f,2.0f,0.1f));
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN"+std::to_string(row), "Sustain"+std::to_string(row), 0.0f,2.5f,1.0f));
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE"+std::to_string(row), "Release"+std::to_string(row), 0.0f,8.0f,0.5f));
+    }
     
     //Pan slider can only take positive values, so we put values from 0 to 2 and we remove 1 to the value at update
     params.push_back(std::make_unique<juce::AudioParameterFloat>("PAN", "Pan", 0.0f,2.0f,1.0f));
@@ -131,11 +136,13 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     synth_.setCurrentPlaybackSampleRate(sampleRate);
     
     //ADSR Params
-    //The same values for all voices at first
-    auto attack = tree_.getRawParameterValue("ATTACK");
-    auto decay = tree_.getRawParameterValue("DECAY");
-    auto sustain = tree_.getRawParameterValue("SUSTAIN");
-    auto release = tree_.getRawParameterValue("RELEASE");
+    
+    auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
+    
+    auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(int(rowChoice->load())));
+    auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(int(rowChoice->load())));
+    auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(int(rowChoice->load())));
+    auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(int(rowChoice->load())));
     
     //Pan
     auto pan = tree_.getRawParameterValue("PAN");
@@ -188,12 +195,13 @@ bool KlideAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 
 void KlideAudioProcessor::updateADSRParams()
 {
-    auto attack = tree_.getRawParameterValue("ATTACK");
-    auto decay = tree_.getRawParameterValue("DECAY");
-    auto sustain = tree_.getRawParameterValue("SUSTAIN");
-    auto release = tree_.getRawParameterValue("RELEASE");
-    
     auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
+    
+    auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(int(rowChoice->load())));
+    auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(int(rowChoice->load())));
+    auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(int(rowChoice->load())));
+    auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(int(rowChoice->load())));
+    
     
     for (int i = 0; i<stepData_->getNumRows();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
@@ -346,7 +354,7 @@ void KlideAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         }
         
         
-    }
+    }//end if "is Playing"
     
     int voiceNumber = synth_.getVoiceNumber(60);
     //synth_.setVoiceLevel(gainVec_[voiceNumber], voiceNumber);

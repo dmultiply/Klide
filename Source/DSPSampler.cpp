@@ -232,7 +232,6 @@ void DSPSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int sta
             
             if (sourceSamplePosition > playingSound->length)
             {
-                //Mael 2022 : changed tailOff to true
                 stopNote (0.0f, false);
                 break;
             }

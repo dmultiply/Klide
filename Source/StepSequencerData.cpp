@@ -10,9 +10,8 @@
 
 #include "StepSequencerData.h"
 
-StepSequencerData::StepSequencerData():sampleRate_(44100),bpm_(100),syncOn_(0),startTime_(0),timeStamp_(-1)
+StepSequencerData::StepSequencerData():numRows_(4), sampleRate_(44100),bpm_(100),syncOn_(0),startTime_(0),timeStamp_(-1)
 {
-    numRows_ = 4;
     
     //Initialize the steps
     globalCurrentStepVec_ = {-1, -1, -1, -1};

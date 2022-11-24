@@ -12,7 +12,6 @@
 #include <string>
 #include <map>
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "CustomSamplerVoice.h"
 #include "DSPSynthesiser.h"
 #include "DSPSampler.h"
 

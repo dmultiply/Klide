@@ -169,18 +169,20 @@ void KlideAudioProcessorEditor::initComponents()
     
     addAndMakeVisible(fakeSeqSlider_);
     
+    /*
     //adsrParamsVec_ to save sliders positions
     adsrParamsVec_.clear();
     for(int row = 0; row<numrows_;row++)
     {
         juce::ADSR::Parameters adsrParams;
-        adsrParams.attack = audioProcessor_.tree_.getRawParameterValue("ATTACK")->load();
-        adsrParams.decay = audioProcessor_.tree_.getRawParameterValue("DECAY")->load();
-        adsrParams.sustain = audioProcessor_.tree_.getRawParameterValue("SUSTAIN")->load();
-        adsrParams.release = audioProcessor_.tree_.getRawParameterValue("RELEASE")->load();
+        adsrParams.attack = audioProcessor_.tree_.getRawParameterValue("ATTACK"+std::to_string(row))->load();
+        adsrParams.decay = audioProcessor_.tree_.getRawParameterValue("DECAY"+std::to_string(row))->load();
+        adsrParams.sustain = audioProcessor_.tree_.getRawParameterValue("SUSTAIN"+std::to_string(row))->load();
+        adsrParams.release = audioProcessor_.tree_.getRawParameterValue("RELEASE"+std::to_string(row))->load();
         
         adsrParamsVec_.push_back(adsrParams);
     }
+     */
     
     //panVec_ to save Pan Positions
     panVec_.clear();
@@ -206,76 +208,99 @@ void KlideAudioProcessorEditor::initComponents()
     rowChoiceLabel_.attachToComponent (&rowChoiceSlider_, false);
     addAndMakeVisible (rowChoiceLabel_);
     
-    //ADSR Sliders
-    //A
-    attackSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    attackSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
-    attackSlider_.setTextBoxIsEditable(true);
-    attackSlider_.setSkewFactor(0.2);
-    attackSlider_.addListener(this);
-    addAndMakeVisible(attackSlider_);
-    
-    //D
-    decaySlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    decaySlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
-    decaySlider_.setTextBoxIsEditable(true);
-    decaySlider_.addListener(this);
-    addAndMakeVisible(decaySlider_);
-    
-    //S
-    sustainSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    sustainSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
-    sustainSlider_.setTextBoxIsEditable(true);
-    sustainSlider_.addListener(this);
-    addAndMakeVisible(sustainSlider_);
-    
-    //R
-    releaseSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    releaseSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
-    releaseSlider_.setTextBoxIsEditable(true);
-    releaseSlider_.addListener(this);
-    addAndMakeVisible(releaseSlider_);
-    
-    //ADSR Attachment
-    //A
-    attackSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ATTACK", attackSlider_);
-    
-    //D
-    decaySliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"DECAY", decaySlider_);
-    
-    //S
-    sustainSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"SUSTAIN", sustainSlider_);
-    
-    //R
-    releaseSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"RELEASE", releaseSlider_);
+    //ADSR generic Sliders     // ====================
+
+    for(int row = 0;row<4;row++)
+    {
+        //Attack
+        juce::Slider* a = new juce::Slider();
+        a->setSliderStyle(Slider::SliderStyle::LinearVertical);
+        a->setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+        a->setTextBoxIsEditable(true);
+        a->setSkewFactor(0.8);
+        a->addListener(this);
+        addAndMakeVisible(a);
+        
+        attackSliderVec_.add(a);
+        
+        auto attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ATTACK"+std::to_string(row), *attackSliderVec_[row]);
+        
+        
+        attackAttachmentVec_.push_back(std::move(attackAttachment));
+        
+        //Decay
+        juce::Slider* d = new juce::Slider();
+        d->setSliderStyle(Slider::SliderStyle::LinearVertical);
+        d->setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+        d->setTextBoxIsEditable(true);
+        d->addListener(this);
+        addAndMakeVisible(d);
+        
+        decaySliderVec_.add(d);
+        
+        auto decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"DECAY"+std::to_string(row), *decaySliderVec_[row]);
+        
+        
+        decayAttachmentVec_.push_back(std::move(decayAttachment));
+        
+        //Sustain
+        juce::Slider* s = new juce::Slider();
+        s->setSliderStyle(Slider::SliderStyle::LinearVertical);
+        s->setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+        s->setTextBoxIsEditable(true);
+        s->addListener(this);
+        addAndMakeVisible(s);
+        
+        sustainSliderVec_.add(s);
+        
+        auto sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"SUSTAIN"+std::to_string(row), *sustainSliderVec_[row]);
+        
+        
+        sustainAttachmentVec_.push_back(std::move(sustainAttachment));
+        
+        //Release
+        juce::Slider* r = new juce::Slider();
+        r->setSliderStyle(Slider::SliderStyle::LinearVertical);
+        r->setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 30);
+        r->setTextBoxIsEditable(true);
+        r->addListener(this);
+        addAndMakeVisible(r);
+        
+        releaseSliderVec_.add(r);
+        
+        auto releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"RELEASE"+std::to_string(row), *releaseSliderVec_[row]);
+        
+        
+        releaseAttachmentVec_.push_back(std::move(releaseAttachment));
+    }
     
     //ADSR Label
     //A
     attackLabel_.setText ("A", juce::dontSendNotification);
     attackLabel_.setFont (10);
     attackLabel_.setJustificationType(4);
-    attackLabel_.attachToComponent (&attackSlider_, false);
+    attackLabel_.attachToComponent (attackSliderVec_[0], false);
     addAndMakeVisible (attackLabel_);
     
     //D
     decayLabel_.setText ("D", juce::dontSendNotification);
     decayLabel_.setFont (10);
     decayLabel_.setJustificationType(4);
-    decayLabel_.attachToComponent (&decaySlider_, false);
+    decayLabel_.attachToComponent (decaySliderVec_[0], false);
     addAndMakeVisible (decayLabel_);
     
     //S
     sustainLabel_.setText ("S", juce::dontSendNotification);
     sustainLabel_.setFont (10);
     sustainLabel_.setJustificationType(4);
-    sustainLabel_.attachToComponent (&sustainSlider_, false);
+    sustainLabel_.attachToComponent (sustainSliderVec_[0], false);
     addAndMakeVisible (sustainLabel_);
     
     //R
     releaseLabel_.setText ("R", juce::dontSendNotification);
     releaseLabel_.setFont (10);
     releaseLabel_.setJustificationType(4);
-    releaseLabel_.attachToComponent (&releaseSlider_, false);
+    releaseLabel_.attachToComponent (releaseSliderVec_[0], false);
     addAndMakeVisible (releaseLabel_);
     
     //Pan Slider
@@ -394,21 +419,31 @@ void KlideAudioProcessorEditor::resized()
     
     //More controls, under the synth
     
-    //ADSR editor
+    // === Row
     rowChoiceSlider_.setBounds(area.removeFromLeft(50).reduced(10));
-    attackSlider_.setBounds(area.removeFromLeft(50).reduced(10));
-    decaySlider_.setBounds(area.removeFromLeft(50).reduced(10));
-    sustainSlider_.setBounds(area.removeFromLeft(50).reduced(10));
-    releaseSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     
-    //Pan
-    //setBounds(area.removeFromLeft(50).reduced(10));
-    panSlider_.setBounds(area.removeFromLeft(50).reduced(10));
+    // === ADSR
+    for(int row=0;row<numrows_;row++)
+    {
+        attackSliderVec_[row]->setVisible(false);
+        sustainSliderVec_[row]->setVisible(false);
+    }
+    
+    attackSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
+    attackSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(50).reduced(10));
+    
+    sustainSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
+    sustainSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(50).reduced(10));
+    
+    attackLabel_.attachToComponent (attackSliderVec_[rowChoiceSlider_.getValue()], false);
+    sustainLabel_.attachToComponent (sustainSliderVec_[rowChoiceSlider_.getValue()], false);
 
     
-    //Sync Button
-    syncButton_.setBounds(area.removeFromRight(100).reduced(10));
+    // === Pan
+    panSlider_.setBounds(area.removeFromLeft(50).reduced(10));
     
+    // === Sync Button
+    syncButton_.setBounds(area.removeFromRight(100).reduced(10));
     
 }
 
@@ -574,6 +609,8 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         
     }
     
+    /*
+    //ADSR
     if(&attackSlider_ == slider){
         adsrParamsVec_[rowChoiceSlider_.getValue()].attack = slider->getValue();
     }
@@ -590,7 +627,7 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         panVec_[rowChoiceSlider_.getValue()] = slider->getValue();
     }
     
-    
+    //If rowchoice slider is moved, change the values of the sliders for the row chosen
     if(&rowChoiceSlider_ == slider){
         attackSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].attack);
         decaySlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].decay);
@@ -598,8 +635,11 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         releaseSlider_.setValue(adsrParamsVec_[rowChoiceSlider_.getValue()].release);
         panSlider_.setValue(panVec_[rowChoiceSlider_.getValue()]);
     }
+    */
         
-    
+    if(&rowChoiceSlider_ == slider){
+        resized();
+    }
     
 }
 
