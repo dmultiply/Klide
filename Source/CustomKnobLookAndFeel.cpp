@@ -125,8 +125,9 @@ void CustomKnobLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, in
 
 void CustomKnobLookAndFeel::drawLabel(juce::Graphics& g, juce::Label& label)
 {
-    g.setColour(juce::Colour(juce::uint8(255), 255, 255, 1.0f));
-    g.fillRoundedRectangle(label.getLocalBounds().toFloat(), 3.0f);
+    //g.setColour(juce::Colour(juce::uint8(255), 255, 255, 1.0f));
+    g.setColour(juce::Colours::grey);
+    g.drawRoundedRectangle(label.getLocalBounds().toFloat(), 3.0f,2.0f);
     
     
     if (!label.isBeingEdited())
@@ -134,7 +135,9 @@ void CustomKnobLookAndFeel::drawLabel(juce::Graphics& g, juce::Label& label)
         auto alpha = label.isEnabled() ? 1.0f : 0.5f;
         const juce::Font font(getLabelFont(label));
         
-        g.setColour(juce::Colour(juce::uint8(0), 0, 0, 1.0f));
+        //g.setColour(juce::Colour(juce::uint8(0), 0, 0, 1.0f));
+        g.setColour(juce::Colours::white);
+        
         g.setFont(font);
         
         auto textArea = getLabelBorderSize(label).subtractedFrom(label.getLocalBounds());

@@ -47,16 +47,27 @@ juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createP
     
     for(int row = 0;row<4;row++)
     {
+        //ADSR
         params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK"+std::to_string(row), "Attack"+std::to_string(row), 0.0f,1.0f,0.01f));
         params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY"+std::to_string(row), "Decay"+std::to_string(row), 0.0f,2.0f,0.1f));
         params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN"+std::to_string(row), "Sustain"+std::to_string(row), 0.0f,2.5f,1.0f));
         params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE"+std::to_string(row), "Release"+std::to_string(row), 0.0f,8.0f,0.5f));
+        
+        //Pan slider can only take positive values, so we put values from 0 to 2 and we remove 1 to the value at update
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("PAN"+std::to_string(row), "Pan"+std::to_string(row), 0.0f,2.0f,1.0f));
+        
+        //Euclidean Parameters
+        params.push_back(std::make_unique<juce::AudioParameterInt>("INTERVAL"+std::to_string(row), "Interval"+std::to_string(row), 4,16,8));
+        params.push_back(std::make_unique<juce::AudioParameterInt>("PULSE"+std::to_string(row), "Pulse"+std::to_string(row), 0,8,4-row));
+        params.push_back(std::make_unique<juce::AudioParameterInt>("OFFSET"+std::to_string(row), "Offset"+std::to_string(row), 0,4,3-row));
+        
+        //Gain
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN"+std::to_string(row), "Gain"+std::to_string(row), 0.0f,1.0f,0.5f));
+        
+        //Filter
+        params.push_back(std::make_unique<juce::AudioParameterInt>("FREQUENCY"+std::to_string(row), "Frequency"+std::to_string(row), 20,20000,6000));
+        params.push_back(std::make_unique<juce::AudioParameterFloat>("RESONANCE"+std::to_string(row), "Resonance"+std::to_string(row), 0.0f,2.0f,0.5f));
     }
-    
-    //Pan slider can only take positive values, so we put values from 0 to 2 and we remove 1 to the value at update
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("PAN", "Pan", 0.0f,2.0f,1.0f));
-    
-    
     
     return {params.begin(),params.end()};
 }
@@ -137,19 +148,29 @@ void KlideAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     //ADSR Params
     
+    /*
     auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
     
     auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(int(rowChoice->load())));
     auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(int(rowChoice->load())));
     auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(int(rowChoice->load())));
     auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(int(rowChoice->load())));
+     */
     
-    //Pan
-    auto pan = tree_.getRawParameterValue("PAN");
+    
     
     //Prepare the filtering in each voice of the synth
-    //Set ADSR
-    for (int i = 0; i<synth_.getNumVoices();i++) {
+    //Set ADSR and pan
+    for (int i = 0; i<stepData_->getNumRows();i++) {
+        
+        auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(i));
+        auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(i));
+        auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(i));
+        auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(i));
+        
+        //Pan
+        auto pan = tree_.getRawParameterValue("PAN"+std::to_string(i));
+        
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
             voice->prepareToPlay(sampleRate,samplesPerBlock,getTotalNumOutputChannels());
@@ -195,19 +216,19 @@ bool KlideAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 
 void KlideAudioProcessor::updateADSRParams()
 {
-    auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
     
-    auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(int(rowChoice->load())));
-    auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(int(rowChoice->load())));
-    auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(int(rowChoice->load())));
-    auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(int(rowChoice->load())));
     
     
     for (int i = 0; i<stepData_->getNumRows();i++) {
+        
+        auto attack = tree_.getRawParameterValue("ATTACK"+std::to_string(i));
+        auto decay = tree_.getRawParameterValue("DECAY"+std::to_string(i));
+        auto sustain = tree_.getRawParameterValue("SUSTAIN"+std::to_string(i));
+        auto release = tree_.getRawParameterValue("RELEASE"+std::to_string(i));
+        
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
-            if(i==rowChoice->load())
-                voice->setADSRParams(attack->load(),decay->load(),sustain->load(),release->load());
+            voice->setADSRParams(attack->load(),decay->load(),sustain->load(),release->load());
         }
     }
 }
@@ -227,23 +248,7 @@ juce::ADSR::Parameters KlideAudioProcessor::getADSRParams(int row)
 
 void KlideAudioProcessor::updateFilter()
 {
-    auto pan = tree_.getRawParameterValue("PAN");
-    auto rowChoice = tree_.getRawParameterValue("ROWCHOICE");
     
-    //Pan slider can only take positive values, so we remove 1 to the value at update
-    
-    for (int i = 0; i<stepData_->getNumRows();i++) {
-        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
-        {
-            if(i==rowChoice->load())
-                voice->updatePan(pan->load()-1);
-        }
-    }
-    
-}
-
-void KlideAudioProcessor::updatePan()
-{
     for (int i = 0; i<stepData_->getNumRows();i++) {
         if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
         {
@@ -251,6 +256,19 @@ void KlideAudioProcessor::updatePan()
         }
     }
     
+}
+
+void KlideAudioProcessor::updatePan()
+{
+    //Pan slider can only take positive values, so we remove 1 to the value at update
+    for (int i = 0; i<stepData_->getNumRows();i++) {
+        auto pan = tree_.getRawParameterValue("PAN"+std::to_string(i));
+        
+        if(auto voice = dynamic_cast<DSPSamplerVoice*>(synth_.getVoice(i)))
+        {
+            voice->updatePan(pan->load()-1);
+        }
+    }    
 }
 
 

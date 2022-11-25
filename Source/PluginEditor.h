@@ -105,15 +105,10 @@ private:
     std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > decayAttachmentVec_;
     std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > sustainAttachmentVec_;
     std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > releaseAttachmentVec_;
-
     
-    //Saving vectors
-    //std::vector<juce::ADSR::Parameters> adsrParamsVec_;
-    std::vector<float> panVec_;
-    
-    //Pan slider
-    juce::Slider panSlider_;
-
+    //Pan slider Vec
+    juce::OwnedArray<juce::Slider> panSliderVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > panAttachmentVec_;
     
     //Sliders Labels
     juce::Label rowChoiceLabel_;
@@ -122,12 +117,41 @@ private:
     juce::Label sustainLabel_;
     juce::Label releaseLabel_;
     juce::Label panLabel_;
-
+    
+    // === Control Components
+    //Sequencer
+    juce::OwnedArray<CustomKnob> intervalSliderVec_;
+    juce::OwnedArray<CustomKnob> pulseSliderVec_;
+    juce::OwnedArray<CustomKnob> offsetSliderVec_;
+    
+    //Gain
+    juce::OwnedArray<CustomKnob> gainSliderVec_;
+    
+    //Filter
+    juce::OwnedArray<CustomKnob> frequencySliderVec_;
+    juce::OwnedArray<CustomKnob> resonanceSliderVec_;
     
     //Attachments
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> panSliderAttachment_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > intervalAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > pulseAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > offsetAttachmentVec_;
     
-    //CHEAT : Restart sequence if changed directly on the sequencer
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > gainAttachmentVec_;
+    
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > frequencyAttachmentVec_;
+    std::vector< std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> > resonanceAttachmentVec_;
+    
+    //Control Components Labels
+    juce::Label intervalLabel_;
+    juce::Label pulseLabel_;
+    juce::Label offsetLabel_;
+    
+    juce::Label gainLabel_;
+
+    juce::Label frequencyLabel_;
+    juce::Label resonanceLabel_;
+
+    // === CHEAT : Restart sequence if changed directly on the sequencer
     //Using fake slider, that will be "listened" to after the other sliders
     //that put a new sequence otherwise
     juce::Slider fakeSeqSlider_;
