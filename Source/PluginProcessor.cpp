@@ -58,7 +58,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createP
         
         //Euclidean Parameters
         params.push_back(std::make_unique<juce::AudioParameterInt>("INTERVAL"+std::to_string(row), "Interval"+std::to_string(row), 4,16,8));
-        params.push_back(std::make_unique<juce::AudioParameterInt>("PULSE"+std::to_string(row), "Pulse"+std::to_string(row), 0,8,4-row));
+        params.push_back(std::make_unique<juce::AudioParameterInt>("PULSE"+std::to_string(row), "Pulse"+std::to_string(row), 0,16,4-row));
         params.push_back(std::make_unique<juce::AudioParameterInt>("OFFSET"+std::to_string(row), "Offset"+std::to_string(row), 0,4,3-row));
         
         //Gain

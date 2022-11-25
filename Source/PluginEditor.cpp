@@ -35,172 +35,50 @@ void KlideAudioProcessorEditor::init() {
     localTimeSigNumerator_ = stepData_->getlocalTimeSigNumerator();
     localTimeSignDenominator_ = stepData_->getlocalTimeSigDenominator();
     
-    //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
+    //Initialize parameters values
+    playVec_ = stepData_->getPlayVec();
+    notesVec_ = stepData_->getNotesVec();    
+    
+    //Initialize the sequencers
+    for(int row = 0;row<numrows_;row++)
+    {
+        StepSequencerComponent* s = new StepSequencerComponent();
+        addAndMakeVisible(s);
+        stepSequencerArray_.add(s);
+    }
+    
+    //Initialize row controls
+    initRowControls();
+    
+    //Set the states of the sequencers and their controls
     initComponents();
     
     //Add sync button
     syncButton_.setButtonText("Sync");
     syncButton_.addListener(this);
     addAndMakeVisible(&syncButton_);
-    
-    //Give stepData pointer to the processor
-    //audioProcessor_.setStepData(stepData_);
-    
-    
+   
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (700, 400);
+    
+    //Row Choice Attachment
+    //It has to be after setSize, because the listener is calling resized()
+    rowChoiceSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ROWCHOICE", rowChoiceSlider_);
     
     //Start the timer
     startTime_ = juce::Time::getMillisecondCounterHiRes() * 0.001;
     startTimer(10);
 }
 
-void KlideAudioProcessorEditor::initComponents()
+void KlideAudioProcessorEditor::initRowControls()
 {
-    //Initialize parameters values
-    playVec_ = stepData_->getPlayVec();
-    pulseVec_ = stepData_->getPulseVec();
-    intervalVec_ = stepData_->getIntervalVec();
-    gainVec_ = stepData_->getGainVec();
-    offsetVec_ = stepData_->getOffsetVec();
-    frequencyVec_ = stepData_->getFrequencyVec();
-    resonanceVec_ = stepData_->getResonanceVec();
-    
-    notesVec_ = stepData_->getNotesVec();
-    
-    //int currentStep = 0;
-    std::vector< std::vector<int> > slideRange = stepData_->getIntervalSliderRangeVec_();
-    std::vector< std::vector<int> > pulseRange = stepData_->getPulseSliderRangeVec_();
-    std::vector< std::vector<float> > gainRange = stepData_->getGainSliderRangeVec_();
-    std::vector< std::vector<int> > offsetRange = stepData_->getOffsetSliderRangeVec_();
-    std::vector< std::vector<int> > frequencyRange = stepData_->getFrequencySliderRangeVec_();
-    std::vector< std::vector<float> > resonanceRange = stepData_->getResonanceSliderRangeVec_();
-    
-    //Clear restart Array
-    restartArray_.clear();
-    
-    //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
-    for(int kk=0;kk<numrows_;kk++)
-    {
-        int currentStep = stepData_->getGlobalStep(kk);
-        
-        //If a first initialization, generate, else give back sequence, in case it was modified by hand
-         
-        std::vector<bool> stepStates;
-        
-        if(stepData_->getInitialized() == false) {
-            //Compute a first rhytmic sequence
-            seqGenerator_.compute_bitmap (intervalVec_[kk], pulseVec_[kk]);
-            std::vector<bool> sequence = seqGenerator_.getSequence();
-            
-            for(int i=0;i<sequence.size();i++)
-                stepStates.push_back(sequence[i]);
-        }
-        
-        //init Restart Array with the sequence before closing the windows
-        restartArray_.push_back(stepData_->getStatesVec(kk));
-        
-        
-        //Build Step Sequencer components. They will be added to a juce::OwnedArray, that will destroy them when it will be destroyed itself
-        StepSequencerComponent* s = new StepSequencerComponent();
-        s->setNumberOfSteps(intervalVec_[kk]);
-        s->setNumberOfPulses(pulseVec_[kk]);
-        s->setOffset(offsetVec_[kk]);
-        s->setCurrentStep(currentStep);
-        s->setStepStates(stepStates);
-        addAndMakeVisible(s);
-        stepSequencerArray_.add(s);
-        
-        //Controls
-        ControlsComponent* c = new ControlsComponent();
-        
-        juce::TextButton* openButton = (juce::TextButton*)c->getChildComponent(0);
-        openButton->addListener(this);
-        
-        juce::TextButton* playButton = (juce::TextButton*)c->getChildComponent(1);
-        playButton->addListener(this);
-        
-        juce::TextButton* stopButton = (juce::TextButton*)c->getChildComponent(2);
-        stopButton->addListener(this);
-        
-        juce::Slider* intervalSlider = (juce::Slider*)c->getChildComponent(3);
-        intervalSlider->addListener(this);
-        
-        juce::Slider* pulseSlider = (juce::Slider*)c->getChildComponent(4);
-        pulseSlider->addListener(this);
-        
-        juce::Slider* gainSlider = (juce::Slider*)c->getChildComponent(5);
-        gainSlider->addListener(this);
-        
-        juce::Slider* offsetSlider = (juce::Slider*)c->getChildComponent(6);
-        offsetSlider->addListener(this);
-        
-        juce::Slider* frequencySlider = (juce::Slider*)c->getChildComponent(7);
-        frequencySlider->addListener(this);
-        
-        juce::Slider* resonanceSlider = (juce::Slider*)c->getChildComponent(8);
-        resonanceSlider->addListener(this);
-        
-        c->setIntervalSliderRange(slideRange[kk][0], slideRange[kk][1]);
-        c->setPulseSliderRange(pulseRange[kk][0], pulseRange[kk][1]);
-        c->setGainSliderRange(gainRange[kk][0], gainRange[kk][1]);
-        c->setOffsetSliderRange(offsetRange[kk][0], offsetRange[kk][1]);
-        c->setFrequencySliderRange(frequencyRange[kk][0], frequencyRange[kk][1]);
-        c->setResonanceSliderRange(resonanceRange[kk][0], resonanceRange[kk][1]);
-        
-        c->setIntervalSliderVal(intervalVec_[kk]);
-        c->setPulseSliderVal(pulseVec_[kk]);
-        c->setGainSliderVal(gainVec_[kk]);
-        c->setOffsetSliderVal(offsetVec_[kk]);
-        c->setFrequencySliderVal(frequencyVec_[kk]);
-        c->setResonanceSliderVal(resonanceVec_[kk]);
-        
-        addAndMakeVisible(c);
-        controlsArray_.add(c);
-        
-        /*
-        //Attachments
-        auto intervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"INTERVAL"+std::to_string(kk), *intervalSlider);
-        auto pulseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"PULSE"+std::to_string(kk), *pulseSlider);
-        auto offsetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"OFFSET"+std::to_string(kk), *offsetSlider);
-        
-        auto gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"GAIN"+std::to_string(kk), *gainSlider);
-        
-        auto frequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"FREQUENCY"+std::to_string(kk), *frequencySlider);
-        auto resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"RESONANCE"+std::to_string(kk), *resonanceSlider);
-        
-        //Push attachments in vector. We use std::move to be able to add unique_ptr to the vectors
-        intervalAttachmentVec_.push_back(std::move(intervalAttachment));
-        pulseAttachmentVec_.push_back(std::move(pulseAttachment));
-        offsetAttachmentVec_.push_back(std::move(offsetAttachment));
-        
-        gainAttachmentVec_.push_back(std::move(gainAttachment));
-        
-        frequencyAttachmentVec_.push_back(std::move(frequencyAttachment));
-        resonanceAttachmentVec_.push_back(std::move(resonanceAttachment));
-         
-        */
-        
-    }
-    /* CHEAT : Put states like they were before closing the window and before the states are reinitialized by the sliders changes
-     TODO : find a better method */
-    if(stepData_->getInitialized() == true){
-        fakeSeqSlider_.setValue(10);
-        fakeSeqSlider_.addListener(this);
-    }
-    
-    addAndMakeVisible(fakeSeqSlider_);
-    
     //Row choice slider
     rowChoiceSlider_.setSliderStyle(Slider::SliderStyle::LinearVertical);
     rowChoiceSlider_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 40, 30);
     rowChoiceSlider_.setTextBoxIsEditable(true);
     rowChoiceSlider_.addListener(this);
     addAndMakeVisible(rowChoiceSlider_);
-    
-    //Row Choice Attachment
-    rowChoiceSliderAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"ROWCHOICE", rowChoiceSlider_);
     
     //Row Choice Label
     rowChoiceLabel_.setText ("Row", juce::dontSendNotification);
@@ -210,7 +88,7 @@ void KlideAudioProcessorEditor::initComponents()
     addAndMakeVisible (rowChoiceLabel_);
     
     //ADSR generic Sliders     // ====================
-
+    
     for(int row = 0;row<4;row++)
     {
         //Attack
@@ -299,10 +177,7 @@ void KlideAudioProcessorEditor::initComponents()
         
         intervalSliderVec_.add(i);
         
-        auto intervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"INTERVAL"+std::to_string(row), *intervalSliderVec_[row]);
         
-        
-        intervalAttachmentVec_.push_back(std::move(intervalAttachment));
         
         //Pulse
         CustomKnob* pulse = new CustomKnob();
@@ -314,11 +189,6 @@ void KlideAudioProcessorEditor::initComponents()
         
         pulseSliderVec_.add(pulse);
         
-        auto pulseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"PULSE"+std::to_string(row), *pulseSliderVec_[row]);
-        
-        
-        pulseAttachmentVec_.push_back(std::move(pulseAttachment));
-        
         //Offset
         CustomKnob* o = new CustomKnob();
         o->setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
@@ -328,11 +198,6 @@ void KlideAudioProcessorEditor::initComponents()
         addAndMakeVisible(o);
         
         offsetSliderVec_.add(o);
-        
-        auto offsetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"OFFSET"+std::to_string(row), *offsetSliderVec_[row]);
-        
-        
-        offsetAttachmentVec_.push_back(std::move(offsetAttachment));
         
         //Gain
         CustomKnob* g = new CustomKnob();
@@ -344,11 +209,6 @@ void KlideAudioProcessorEditor::initComponents()
         
         gainSliderVec_.add(g);
         
-        auto gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"GAIN"+std::to_string(row), *gainSliderVec_[row]);
-        
-        
-        gainAttachmentVec_.push_back(std::move(gainAttachment));
-        
         //Frequency
         CustomKnob* f = new CustomKnob();
         f->setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
@@ -358,11 +218,6 @@ void KlideAudioProcessorEditor::initComponents()
         addAndMakeVisible(f);
         
         frequencySliderVec_.add(f);
-        
-        auto frequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"FREQUENCY"+std::to_string(row), *frequencySliderVec_[row]);
-        
-        
-        frequencyAttachmentVec_.push_back(std::move(frequencyAttachment));
         
         //Resonance
         CustomKnob* res = new CustomKnob();
@@ -374,9 +229,25 @@ void KlideAudioProcessorEditor::initComponents()
         
         resonanceSliderVec_.add(res);
         
+        // === Attachments
+        auto intervalAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"INTERVAL"+std::to_string(row), *intervalSliderVec_[row]);
+        
+        auto pulseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"PULSE"+std::to_string(row), *pulseSliderVec_[row]);
+        
+        auto offsetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"OFFSET"+std::to_string(row), *offsetSliderVec_[row]);
+        
+        auto gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"GAIN"+std::to_string(row), *gainSliderVec_[row]);
+        
+        auto frequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"FREQUENCY"+std::to_string(row), *frequencySliderVec_[row]);
+        
         auto resonanceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,"RESONANCE"+std::to_string(row), *resonanceSliderVec_[row]);
         
-        
+        //Push the attachments inside the vectors
+        intervalAttachmentVec_.push_back(std::move(intervalAttachment));
+        pulseAttachmentVec_.push_back(std::move(pulseAttachment));
+        offsetAttachmentVec_.push_back(std::move(offsetAttachment));
+        gainAttachmentVec_.push_back(std::move(gainAttachment));
+        frequencyAttachmentVec_.push_back(std::move(frequencyAttachment));
         resonanceAttachmentVec_.push_back(std::move(resonanceAttachment));
         
     }
@@ -458,6 +329,67 @@ void KlideAudioProcessorEditor::initComponents()
     resonanceLabel_.setJustificationType(4);
     resonanceLabel_.attachToComponent (resonanceSliderVec_[0], false);
     addAndMakeVisible (resonanceLabel_);
+}
+
+
+void KlideAudioProcessorEditor::initComponents()
+{
+    
+    //Clear restart Array
+    restartArray_.clear();
+    
+    //Loop on StepSequencerComponents and ControlsComponent to initiate the parameters there
+    for(int row=0;row<numrows_;row++)
+    {
+        int currentStep = stepData_->getGlobalStep(row);
+        
+        //If a first initialization, generate, else give back sequence, in case it was modified by hand
+        std::vector<bool> stepStates;
+        
+        if(stepData_->getInitialized() == false) {
+            //Compute a first rhytmic sequence
+            seqGenerator_.compute_bitmap (intervalSliderVec_[row]->getValue(), pulseSliderVec_[row]->getValue());
+            std::vector<bool> sequence = seqGenerator_.getSequence();
+            
+            for(int i=0;i<sequence.size();i++)
+                stepStates.push_back(sequence[i]);
+        }
+        
+        //init Restart Array with the sequence that existed before closing the windows
+        if(stepData_->getInitialized() == true)
+            restartArray_.push_back(stepData_->getRestartVec(row));
+        
+        //Build Step Sequencer components. They will be added to a juce::OwnedArray, that will destroy them when it will be destroyed itself
+        stepSequencerArray_[row]->setNumberOfSteps(intervalSliderVec_[row]->getValue());
+        stepSequencerArray_[row]->setNumberOfPulses(pulseSliderVec_[row]->getValue());
+        stepSequencerArray_[row]->setOffset(offsetSliderVec_[row]->getValue());
+        stepSequencerArray_[row]->setCurrentStep(currentStep);
+        stepSequencerArray_[row]->setStepStates(stepStates);
+        
+        //Controls
+        ControlsComponent* c = new ControlsComponent();
+        
+        juce::TextButton* openButton = (juce::TextButton*)c->getChildComponent(0);
+        openButton->addListener(this);
+        
+        juce::TextButton* playButton = (juce::TextButton*)c->getChildComponent(1);
+        playButton->addListener(this);
+        
+        juce::TextButton* stopButton = (juce::TextButton*)c->getChildComponent(2);
+        stopButton->addListener(this);
+        
+        addAndMakeVisible(c);
+        controlsArray_.add(c);
+        
+    }
+    /* CHEAT : Put states like they were before closing the window and before the states are reinitialized by the sliders changes
+     TODO : find a better method */
+    if(stepData_->getInitialized() == true){
+        fakeSeqSlider_.setValue(10);
+        fakeSeqSlider_.addListener(this);
+    }
+    
+    addAndMakeVisible(fakeSeqSlider_);
     
 }
 
@@ -466,7 +398,7 @@ KlideAudioProcessorEditor::~KlideAudioProcessorEditor()
     stopTimer();
     
     //Save states in StepData_ before closing of the window
-    stepData_->setStatesArray(getStatesArray());
+    stepData_->setRestartArray(getStatesArray());
     
 }
 
@@ -492,7 +424,7 @@ void KlideAudioProcessorEditor::timerCallback()
             if(playVec_[row] == 1)
                 stepSequencerArray_[row]->step();
         }
-        else if(currentStep == 0 && globalCurrentStepVec_[row] == intervalVec_[row]-1)
+        else if(currentStep == 0 && globalCurrentStepVec_[row] == intervalSliderVec_[row]->getValue()-1)
         {
             globalCurrentStepVec_[row] = currentStep;
             
@@ -656,7 +588,7 @@ void KlideAudioProcessorEditor::openButtonClicked(int row)
 
 void KlideAudioProcessorEditor::playButtonClicked(int row)
 {
-    jassert(row<intervalVec_.size());
+    jassert(row<intervalSliderVec_.size());
     jassert(row<notesVec_.size());
     jassert(row<playVec_.size());
     jassert(row<globalCurrentStepVec_.size());
@@ -679,7 +611,7 @@ void KlideAudioProcessorEditor::playButtonClicked(int row)
         stepData_->setStartTime(startTime_);
         
         //Setting of the number of intervals and their durations
-        stepData_->setInterval(row, intervalVec_[row]);
+        stepData_->setInterval(row, intervalSliderVec_[row]->getValue());
         double duration = stepData_->computeStepDuration(row);
         stepData_->setStepTime(row, duration);
         
@@ -710,7 +642,7 @@ void KlideAudioProcessorEditor::playButtonClicked(int row)
         stepData_->setNote(row,notesVec_[row]);
         
         //Setting of the number of intervals and their durations
-        stepData_->setInterval(row, intervalVec_[row]);
+        stepData_->setInterval(row, intervalSliderVec_[row]->getValue());
         double duration = stepData_->computeStepDuration(row);
         stepData_->setStepTime(row, duration);
         
@@ -754,25 +686,7 @@ void KlideAudioProcessorEditor::stopButtonClicked(int row)
 
 void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
 {
-   
-    for(int kk=0;kk<controlsArray_.size();kk++)
-    {
-        
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[3] == slider)
-            KlideAudioProcessorEditor::intervalValueChanged(slider, kk);
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[4] == slider)
-            KlideAudioProcessorEditor::pulseValueChanged(slider, kk);
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[5] == slider)
-            KlideAudioProcessorEditor::gainValueChanged(slider, kk);
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[6] == slider)
-            KlideAudioProcessorEditor::offsetValueChanged(slider, kk);
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[7] == slider)
-            KlideAudioProcessorEditor::frequencyValueChanged(slider, kk);
-        if((juce::Slider*)controlsArray_[kk]->getChildren()[8] == slider)
-            KlideAudioProcessorEditor::resonanceValueChanged(slider, kk);
-    }
     
-    /*
     for(int row=0;row<stepData_->getNumRows();row++)
     {
         if((juce::Slider*) intervalSliderVec_[row] == slider)
@@ -786,13 +700,14 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         if((juce::Slider*) frequencySliderVec_[row] == slider)
             KlideAudioProcessorEditor::frequencyValueChanged(slider, row);
         if((juce::Slider*) resonanceSliderVec_[row] == slider)
-            KlideAudioProcessorEditor::frequencyValueChanged(slider, row);
-        
+            KlideAudioProcessorEditor::resonanceValueChanged(slider, row);
 
     }
-    */
+    
+    
     
     //CHEAT (started in the initComponents), Fake slider to put the same sequence that was before closing the window, in case it was changed directly by clicking on the sequence
+    
     if(isNotRestarted_) {
         if(&fakeSeqSlider_ == slider){
             for(int i = 0; i<stepData_->getNumRows();i++)
@@ -802,9 +717,11 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
         }
         
     }
+    
         
     if(&rowChoiceSlider_ == slider){
         //Redraw the sliders for the row
+        repaint();
         resized();
     }
     
@@ -815,8 +732,7 @@ void KlideAudioProcessorEditor::intervalValueChanged(juce::Slider *slider, int r
     //Fix this jassert
     //jassert(row<playVec_.size());
     //jassert(row<intervalVec_.size());
-    jassert(row<controlsArray_.size());
-    jassert(row<pulseVec_.size());
+    jassert(row<intervalSliderVec_.size());
     jassert(row<globalCurrentStepVec_.size());
     jassert(row<stepSequencerArray_.size());
     
@@ -826,26 +742,27 @@ void KlideAudioProcessorEditor::intervalValueChanged(juce::Slider *slider, int r
     stepData_->setPlay(row,playVec_[row]);
     
     //Get the new number of steps for the row
-    intervalVec_[row] = slider->getValue();
+    //intervalVec_[row] = slider->getValue();
+    auto interval = slider->getValue();
     
     //Change the number of pulses if superior to the number of steps
-    if(controlsArray_[row]->getPulseSliderVal() > intervalVec_[row])
+    if(pulseSliderVec_[row]->getValue() > interval)
     {
-        controlsArray_[row]->setPulseSliderVal(intervalVec_[row]/2.0);
-        pulseVec_[row] = intervalVec_[row]/2.0;
+        pulseSliderVec_[row]->setValue(interval/2.0);
     }
-    
-    controlsArray_[row]->setPulseSliderRange(0, intervalVec_[row]);
+
+    //The numer of pulses cannot be more than the number of intervals
+    pulseSliderVec_[row]->setRange(0,interval);
     
     //Compute Euclide Algo to get new sequence of states with the new interval and pulses
-    seqGenerator_.compute_bitmap (intervalVec_[row], pulseVec_[row]);
+    seqGenerator_.compute_bitmap (interval, pulseSliderVec_[row]->getValue());
     std::vector<bool> sequence = seqGenerator_.getSequence();
     
     //Set the new states in the widget
     stepSequencerArray_[row]->setStepStates(sequence);
     
     //Setting of the number of intervals and their durations
-    stepData_->setInterval(row,intervalVec_[row]);
+    stepData_->setInterval(row,interval);
     double duration = stepData_->computeStepDuration(row);
     stepData_->setStepTime(row, duration);
     
@@ -857,7 +774,7 @@ void KlideAudioProcessorEditor::intervalValueChanged(juce::Slider *slider, int r
     float currentTimestamp = stepData_->getTimeStamp()+(float)absoluteStep*stepData_->getStepTime(row);
     
     //number of intervals change notification
-    stepSequencerArray_[row]->setNumberOfSteps(intervalVec_[row]);
+    stepSequencerArray_[row]->setNumberOfSteps(interval);
     
     //Set the step counters, for the audio and the widget
     stepData_->setGlobalStep(row, currentStep-1); //Audio step
@@ -869,9 +786,6 @@ void KlideAudioProcessorEditor::intervalValueChanged(juce::Slider *slider, int r
     jassert(row<statesArray.size());
     stepData_->setStates(row,statesArray[row]);
     
-    //2022 memorize the new interval
-    stepData_->setIntervalVec(row, intervalVec_[row]);
-    
     //Create the next step with the new intervals and pulses
     //Will restart the row at currentStep if the row was playing before
     stepData_->createNextStep(row, currentStep,currentTimestamp);
@@ -882,44 +796,51 @@ void KlideAudioProcessorEditor::intervalValueChanged(juce::Slider *slider, int r
 
 void KlideAudioProcessorEditor::pulseValueChanged(juce::Slider *slider, int row)
 {
-    jassert(row<pulseVec_.size());
-    jassert(row<intervalVec_.size());
+    jassert(row<pulseSliderVec_.size());
+    jassert(row<intervalSliderVec_.size());
     jassert(row<stepSequencerArray_.size());
     
-    pulseVec_[row] = slider->getValue();
-    stepSequencerArray_[row]->setNumberOfPulses(pulseVec_[row]);
+    auto pulse = slider->getValue();
+    if(pulse>intervalSliderVec_[row]->getValue())
+    {
+        pulse = intervalSliderVec_[row]->getValue();
+        pulseSliderVec_[row]->setRange(0,intervalSliderVec_[row]->getValue());
+    }
+        
+        
+    stepSequencerArray_[row]->setNumberOfPulses(pulse);
     
     //Compute Euclide Algo
-    seqGenerator_.compute_bitmap (intervalVec_[row], pulseVec_[row]);
+    seqGenerator_.compute_bitmap (intervalSliderVec_[row]->getValue(), pulse);
     std::vector<bool> sequence = seqGenerator_.getSequence();
     
     stepSequencerArray_[row]->setStepStates(sequence);
     
     //2022 memorize the new pulse
-    stepData_->setPulseVec(row, pulseVec_[row]);
+    stepData_->setPulseVec(row, pulse);
     
 }
 
 void KlideAudioProcessorEditor::gainValueChanged(juce::Slider *slider, int row)
 {
-    gainVec_[row] = slider->getValue();
+    auto gain = slider->getValue();
     
-    audioProcessor_.setGain(slider->getValue(), row);
+    audioProcessor_.setGain(gain, row);
     
     //2022 memorize the new gain
-    stepData_->setGainVec(row, slider->getValue());
+    stepData_->setGainVec(row, gain);
 }
 
 void KlideAudioProcessorEditor::offsetValueChanged(juce::Slider *slider, int row)
 {
-    offsetVec_[row] = slider->getValue();
+    auto offset = slider->getValue();
     
     //get the sequence
     std::vector<bool> sequence = getStatesArray()[row];
     //Set the sequence in seqGenerator
     seqGenerator_.setSequence(sequence);
     //Calculate the new sequence
-    seqGenerator_.offsetSequence(slider->getValue());
+    seqGenerator_.offsetSequence(offset);
     
     //repaint the sequence
     sequence = seqGenerator_.getSequence();
@@ -928,25 +849,25 @@ void KlideAudioProcessorEditor::offsetValueChanged(juce::Slider *slider, int row
     
     
     //memorize the new Offset
-    stepData_->setOffsetVec(row, slider->getValue());
+    stepData_->setOffsetVec(row, offset);
     
 }
 
 void KlideAudioProcessorEditor::frequencyValueChanged(juce::Slider *slider, int row)
 {
-    frequencyVec_[row] = slider->getValue();
+    auto frequency = slider->getValue();
     
     //memorize the new Offset
-    stepData_->setFrequencyVec(row, slider->getValue());
+    stepData_->setFrequencyVec(row, frequency);
     
 }
 
 void KlideAudioProcessorEditor::resonanceValueChanged(juce::Slider *slider, int row)
 {
-    resonanceVec_[row] = slider->getValue();
+    auto resonance = slider->getValue();
     
     //memorize the new Offset
-    stepData_->setResonanceVec(row, slider->getValue());
+    stepData_->setResonanceVec(row, resonance);
     
 }
 

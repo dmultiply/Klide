@@ -218,6 +218,13 @@ void StepSequencerData::setStates(int row, std::vector<bool> states)
     statesArray_[row] = states;
 }
 
+void StepSequencerData::setRestartArray(const std::vector< std::vector<bool> > &restartArray)
+{
+    restartArray_ = restartArray;
+
+}
+
+
 void StepSequencerData::setStartTime(float startTime)
 {
     startTime_ = startTime;
@@ -507,6 +514,13 @@ std::vector<bool> StepSequencerData::getStatesVec(int row)
     jassert(row<statesArray_.size());
     
     return(statesArray_[row]);
+}
+
+std::vector<bool> StepSequencerData::getRestartVec(int row)
+{
+    jassert(row<restartArray_.size());
+    
+    return(restartArray_[row]);
 }
 
 void StepSequencerData::isInitialized()

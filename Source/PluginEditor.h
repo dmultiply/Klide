@@ -54,6 +54,7 @@ private:
     KlideAudioProcessor& audioProcessor_;
     
     void initComponents();
+    void initRowControls();
     
     // =========== Types
     enum transportState
@@ -163,7 +164,7 @@ private:
     
     transportState state_;
     
-    //Step Sequencer
+    //=== Step Sequencer
     juce::String name_;
     juce::Colour colour_;
     
@@ -172,25 +173,8 @@ private:
     SequenceGenerator seqGenerator_;
     
     std::vector<int> playVec_;
-    
-    std::vector<int> globalCurrentStepVec_;
-    
-    std::vector<int> intervalVec_;
-    std::vector<int> pulseVec_;
-    std::vector<float> gainVec_;
-    std::vector<int> offsetVec_;
-    std::vector<int> frequencyVec_;
-    std::vector<float> resonanceVec_;
-    
-    std::vector< std::vector<int> > intervalSliderRangeVec_;
-    std::vector< std::vector<int> > pulseSliderRangeVec_;
-    std::vector< std::vector<float> > gainSliderRangeVec_;
-    std::vector< std::vector<int> > offsetSliderRangeVec_;
-    std::vector< std::vector<int> > frequencySliderRangeVec_;
-    std::vector< std::vector<float> > resonanceSliderRangeVec_;
-    
-    
     std::vector<int> notesVec_;
+    std::vector<int> globalCurrentStepVec_;  
     
     //Sync parameters
     int bpm_;

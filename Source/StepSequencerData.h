@@ -41,6 +41,9 @@ public:
     
     //States
     void setStatesArray(const std::vector< std::vector<bool> > &statesArray);
+    
+    void setRestartArray(const std::vector< std::vector<bool> > &restartArray);
+    std::vector<bool> getRestartVec(int row);
 
     std::vector<bool> getStatesVec(int row);
     void setStates(int row, std::vector<bool> states);
@@ -142,6 +145,7 @@ private:
     int bpm_;
     
     std::vector< std::vector<bool> > statesArray_;
+    std::vector< std::vector<bool> > restartArray_;
     
     std::vector<double> stepTimeVec_;
     std::vector<int> globalStepVec_;
