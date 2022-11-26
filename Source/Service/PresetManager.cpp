@@ -60,7 +60,6 @@ namespace Service
 		}
         
         // === Copy audio file to defautAudioDirectory
-        //0
         //TODO : retrieve the number of row from the tree or else
         for(int row=0;row<4;row++)
         {

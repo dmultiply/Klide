@@ -21,7 +21,7 @@ class DragNDropButton : public juce::ImageButton, public juce::FileDragAndDropTa
 public:
     DragNDropButton();
     ~DragNDropButton();
-    void filesDropped (const StringArray &files, int x, int y) override;
+    void filesDropped (const juce::StringArray &files, int x, int y) override;
     
 private:
     

@@ -56,7 +56,7 @@ syncOn_(0)
 void KlideAudioProcessor::loadAudioSamples()
 {
     //First put back original samples, if some have been saved in the preset
-    synth_.setDefaultSamples();
+    //synth_.setDefaultSamples();
     
     for(int row=0;row<stepData_->getNumRows();row++)
     {

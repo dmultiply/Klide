@@ -11,6 +11,7 @@
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
 \f0\fs24 \cf0 === 26/11/2022 ===\
+- TODO : The original sounds need to be charged as a preset. So that we can retrieve the audio files, and copy them in other preset, if necessary. If not, problem when saving presets.\
 - TODO : finish the drag n drop button\
 - TODO : the load and save management for the preset samples should be made in the audioProcessor ? And not in the panel files ?\
 Find a way\
@@ -29,7 +30,7 @@ And use it everywhere possible, like in the presetManager and in the constructor
 \f0\i0 \cf0 \
 \pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
-\f2 \cf4 \cb3     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> intervalAttachment_;
+\f2 \cf4     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> intervalAttachment_;
 \f0 \cf0 \cb1 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 \cf0 - Editor.cpp, constructor : \
@@ -42,42 +43,45 @@ intervalAttachment_.reset();\
 
 \f3\b \cf10 if
 \f2\b0 \cf4 (&\cf5 rowChoiceSlider_\cf4  == slider)\{
-\f0 \cf0 \cb3 \
+\f0 \cf0 \
 \pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
 \f1\i \cf2 //Redraw the sliders for the row
-\f2\i0 \cf4 \cb3       
-\f0 \cf0 \cb3 \
+\f2\i0 \cf4       
+\f0 \cf0 \
 
 \f1\i \cf2 // === Set up the generic audio parameter (so its attachment) for all rows
 \f0\i0 \cf0 \
 \pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
-\f3\b \cf10 \cb3 auto
+\f3\b \cf10 auto
 \f2\b0 \cf4  interval  = \cf5 intervalSliderVec_\cf4 [
 \f3\b \cf10 int
 \f2\b0 \cf4 (\cf11 rowChoiceSlider_\cf4 .\cf11 getValue\cf4 ())]->\cf11 getValue\cf4 ();
-\f0 \cf0 \cb3 \
+\f0 \cf0 \
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
-\f2 \cf4 \cb3 intervalAttachment_.reset();
-\f0 \cf0 \cb3 \
+\f2 \cf4 intervalAttachment_.reset();
+\f0 \cf0 \
 
-\f2 \cf4 \cb3 intervalAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,\cf8 "INTERVAL"\cf4 , *intervalSliderVec_[
+\f2 \cf4 intervalAttachment_ = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor_.tree_,\cf8 "INTERVAL"\cf4 , *intervalSliderVec_[
 \f3\b \cf10 int
 \f2\b0 \cf4 (rowChoiceSlider_.getValue())]);
-\f0 \cf0 \cb3 \
+\f0 \cf0 \
 
-\f2 \cf4 \cb3         
-\f0 \cf0 \cb3 \
+\f2 \cf4         
+\f0 \cf0 \
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
-\f2 \cf5 \cb3 intervalSliderVec_\cf4 [
+\f2 \cf5 intervalSliderVec_\cf4 [
 \f3\b \cf10 int
 \f2\b0 \cf4 (\cf11 rowChoiceSlider_\cf4 .\cf11 getValue\cf4 ())]->\cf11 setValue\cf4 (interval);\
 \'85
-\f0 \cf0 \cb3 \
+\f0 \cf0 \
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
 
-\f2 \cf4 \cb3 \}
-\f0 \cf0 \cb3 \
+\f2 \cf4 \}
+\f0 \cf0 \
 \cb1 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 \cf0 \
