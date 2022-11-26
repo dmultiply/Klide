@@ -4,9 +4,21 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
               pluginCharacteristicsValue="pluginProducesMidiOut" pluginFormats="buildStandalone,buildVST3"
               defines="JUCE_MODAL_LOOPS_PERMITTED=1" pluginManufacturer="Mael"
-              pluginVST3Category="Instrument">
+              pluginVST3Category="Instrument" cppLanguageStandard="17">
   <MAINGROUP id="SRcIE6" name="Klide">
     <GROUP id="{614E47FB-0328-2114-0775-98239FC1EC96}" name="Source">
+      <FILE id="GppC4z" name="DragNDropButton.cpp" compile="1" resource="0"
+            file="Source/DragNDropButton.cpp"/>
+      <FILE id="VLNOht" name="DragNDropButton.h" compile="0" resource="0"
+            file="Source/DragNDropButton.h"/>
+      <GROUP id="{7189B3C0-2FA6-0FC6-45FE-383D0BB1546A}" name="Gui">
+        <FILE id="hzFnid" name="PresetPanel.h" compile="0" resource="0" file="Source/Gui/PresetPanel.h"/>
+      </GROUP>
+      <GROUP id="{AA39563A-8F3F-D532-307A-A7163D0CA8DE}" name="Service">
+        <FILE id="rEABje" name="PresetManager.cpp" compile="1" resource="0"
+              file="Source/Service/PresetManager.cpp"/>
+        <FILE id="toYEuW" name="PresetManager.h" compile="0" resource="0" file="Source/Service/PresetManager.h"/>
+      </GROUP>
       <FILE id="XIFCv5" name="adsr_editor.cpp" compile="1" resource="0" file="Source/adsr_editor.cpp"/>
       <FILE id="TV1FXp" name="adsr_editor.h" compile="0" resource="0" file="Source/adsr_editor.h"/>
       <FILE id="HXsRk6" name="ControlsComponent.cpp" compile="1" resource="0"

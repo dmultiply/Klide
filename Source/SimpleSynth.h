@@ -27,6 +27,8 @@ public:
     void setSample(int noteNumber, juce::String name);
     int getSoundIndex(int noteNumber);
     
+    void setDefaultSamples();
+    
     void renderVoices (juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
     //void setFilter(juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter <float> , juce::dsp::IIR::Coefficients <float> >* filter, DSPSynthesiserVoice* voice);
     

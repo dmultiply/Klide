@@ -115,7 +115,21 @@ void ControlsComponent::resized()
     // subcomponents in your editor..
     
     juce::Rectangle<int> area = getLocalBounds();
+    
+    const int buttonsWidth = area.getWidth()*0.3;
+    const int controlsSideMargin = area.getWidth()/350;
+    
+    area.removeFromTop(area.getHeight()*1/4);
+    area.removeFromBottom(area.getHeight()*1/4);
+    
+    openButton_.setBounds(area.removeFromLeft(buttonsWidth-10)
+                          .reduced(controlsSideMargin));
+    playButton_.setBounds(area.removeFromLeft(buttonsWidth)
+                          .reduced(controlsSideMargin));
+    stopButton_.setBounds(area.removeFromLeft(buttonsWidth-20)
+                          .reduced(controlsSideMargin));
 
+    /* To put back if i want to put back the sliders
     //Seq 1
     const int buttonsWidth = area.getWidth()*7/65;
     const int controlsSideMargin = area.getWidth()/350;
@@ -150,6 +164,7 @@ void ControlsComponent::resized()
                             .reduced(slidersSideMargin));
     resonanceSlider_.setBounds(area.removeFromLeft(slidersWidth)
                             .reduced(slidersSideMargin));
+     */
 
 }
 

@@ -11,8 +11,11 @@
 
 //==============================================================================
 KlideAudioProcessorEditor::KlideAudioProcessorEditor (KlideAudioProcessor& p)
-: AudioProcessorEditor (&p), audioProcessor_ (p),state_ (stopped), noRowOn_(true)
+: AudioProcessorEditor (&p), audioProcessor_ (p), presetPanel(p.getPresetManager(),p), state_ (stopped), noRowOn_(true)
 {
+    
+    addAndMakeVisible(presetPanel);
+    
     //Get StepSequencerData from the AudioProcessor
     stepData_ = p.getStepData();
     
@@ -37,7 +40,8 @@ void KlideAudioProcessorEditor::init() {
     
     //Initialize parameters values
     playVec_ = stepData_->getPlayVec();
-    notesVec_ = stepData_->getNotesVec();    
+    notesVec_ = stepData_->getNotesVec();
+    
     
     //Initialize the sequencers
     for(int row = 0;row<numrows_;row++)
@@ -477,8 +481,13 @@ void KlideAudioProcessorEditor::resized()
     
     //Areas, for the synth, separated in controls and sequencer
     juce::Rectangle<int> area = getLocalBounds();
+    presetPanel.setBounds(area.removeFromTop(proportionOfHeight(0.1f)));
+
+    
     juce::Rectangle<int> synthArea = area.removeFromTop(area.getHeight()*30/50);
-    juce::Rectangle<int> controlsArea = synthArea.removeFromLeft(area.getWidth()*3/5);
+    //juce::Rectangle<int> controlsArea = synthArea.removeFromLeft(area.getWidth()*3/5);
+    juce::Rectangle<int> controlsArea = synthArea.removeFromLeft(area.getWidth()*15/50);
+
     
     const int controlsHeight = synthArea.getHeight()* 12/50;
     
@@ -550,6 +559,7 @@ void KlideAudioProcessorEditor::resized()
     // === Sync Button
     syncButton_.setBounds(area.removeFromRight(100).reduced(10));
     
+    
 }
 
 void KlideAudioProcessorEditor::buttonClicked (juce::Button* button)
@@ -574,11 +584,15 @@ void KlideAudioProcessorEditor::openButtonClicked(int row)
 {
     
     juce::FileChooser chooser ("Select a Wave file to play...",
-                               juce::File::getSpecialLocation (juce::File::userHomeDirectory),
+                               juce::File::getSpecialLocation (juce::File::userMusicDirectory),
                                "*.wav");
     if (chooser.browseForFileToOpen())
     {
         juce::File file (chooser.getResult());
+        
+        //Put in the tree the filename
+        Value audioPath = audioProcessor_.tree_.state.getPropertyAsValue("AUDIO_FILEPATH"+String(row), nullptr, true);
+        audioPath.setValue(file.getFullPathName());
         
         audioProcessor_.getSynth()->setSample(stepData_->getNote(row), file.getFullPathName());
     }
@@ -720,7 +734,8 @@ void KlideAudioProcessorEditor::sliderValueChanged (juce::Slider *slider)
     
         
     if(&rowChoiceSlider_ == slider){
-        //Redraw the sliders for the row
+        
+        // === Replace the sliders for the current row
         repaint();
         resized();
     }

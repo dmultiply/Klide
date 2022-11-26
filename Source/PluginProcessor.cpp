@@ -19,16 +19,30 @@ KlideAudioProcessor::KlideAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), tree_(*this, nullptr, "Parameters", createParameters()),
+                       ), tree_(*this, nullptr, ProjectInfo::projectName, createParameters()),
 
 sampleRate_ (44100.0),
 syncOn_(0)
 #endif
 {
+    //Property to retrieve the audio samples
+    //TODO :retrieve the number of row from the tree_ or else
+    for(int row = 0;row<4;row++) {
+        Value audioPath = tree_.state.getPropertyAsValue("AUDIO_FILEPATH"+String(row), nullptr, true);
+        audioPath.setValue("");
+    }
     
     
-    gainVec_ = {0.6f,0.7f,1.0f,0.8f};
+    //Preset manager to load save presets
+    tree_.state.setProperty(Service::PresetManager::presetNameProperty, "", nullptr);
+    tree_.state.setProperty("version", ProjectInfo::versionString, nullptr);
     
+    presetManager = std::make_unique<Service::PresetManager>(tree_);
+    
+    
+    
+    //? TODO remove ?
+    gainVec_ = {0.6f,0.7f,1.0f,0.8f};    
     info_ = "nothing";
     
     //Start the synth
@@ -39,14 +53,40 @@ syncOn_(0)
        
 }
 
+void KlideAudioProcessor::loadAudioSamples()
+{
+    //First put back original samples, if some have been saved in the preset
+    synth_.setDefaultSamples();
+    
+    for(int row=0;row<stepData_->getNumRows();row++)
+    {
+        Value audioPath = tree_.state.getPropertyAsValue("AUDIO_FILEPATH"+String(row), nullptr, true);
+        
+        if(audioPath.toString().toStdString() != ""){
+            synth_.setSample(stepData_->getNote(row), audioPath.toString());
+        }
+        
+    }
+    
+}
+
+
 juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createParameters()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
     params.push_back(std::make_unique<juce::AudioParameterInt>("ROWCHOICE", "Rowchoice", 0,3,0));
     
+    //Generic Params
+    //params.push_back(std::make_unique<juce::AudioParameterInt>("INTERVAL", "Interval", 4,16,8));
+    
+    //Row Params
+    //TODO :retrieve the number of row from the tree_ or else
     for(int row = 0;row<4;row++)
     {
+        params.push_back(std::make_unique<juce::AudioParameterInt>("TEST"+std::to_string(row), "Test"+std::to_string(row), 0,3,0));
+
+        
         //ADSR
         params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK"+std::to_string(row), "Attack"+std::to_string(row), 0.0f,1.0f,0.01f));
         params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY"+std::to_string(row), "Decay"+std::to_string(row), 0.0f,2.0f,0.1f));
@@ -439,12 +479,22 @@ void KlideAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    auto state = tree_.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
+    
+    
 }
 
 void KlideAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName (tree_.state.getType()))
+            tree_.replaceState (juce::ValueTree::fromXml (*xmlState));    
 }
 
 //==============================================================================
@@ -497,6 +547,5 @@ juce::AudioProcessorValueTreeState::ParameterLayout KlideAudioProcessor::createP
     return {params.begin(), params.end()};
 }
  */
-
 
 

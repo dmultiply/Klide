@@ -24,6 +24,9 @@
 
 #include "adsr_editor.h"
 
+#include "Gui/PresetPanel.h"
+
+
 //==============================================================================
 /**
 */
@@ -43,6 +46,7 @@ public:
     void buttonClicked (juce::Button* button) override;
     
     void sliderValueChanged (juce::Slider *slider) override;
+
     
 
 private:
@@ -52,6 +56,8 @@ private:
     // access the processor object that created it.
     //KlideAudioProcessor& audioProcessor;
     KlideAudioProcessor& audioProcessor_;
+    
+    Gui::PresetPanel presetPanel;
     
     void initComponents();
     void initRowControls();
@@ -90,8 +96,8 @@ private:
     
     //Buttons
     juce::TextButton syncButton_;
-    juce::TextEditor testBox_;
-
+    juce::TextEditor testBox_;    
+    
     //Row choice
     juce::Slider rowChoiceSlider_;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> rowChoiceSliderAttachment_;
@@ -158,7 +164,6 @@ private:
     juce::Slider fakeSeqSlider_;
     std::vector< std::vector<bool> > restartArray_;
     bool isNotRestarted_ {true};
-
     
     
     
@@ -188,6 +193,9 @@ private:
     StepSequencerData* stepData_ = NULL;
     
     juce::Image backgroundImage_;
+    
+    //Check the comboBox in the panel to load audio
+    OwnedArray<juce::ComboBox> loadBoxVec_;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KlideAudioProcessorEditor)

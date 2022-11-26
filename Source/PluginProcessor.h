@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "SimpleSynth.h"
 #include "StepSequencerData.h"
+#include "Service/PresetManager.h"
 
 //==============================================================================
 /**
@@ -77,11 +78,16 @@ public:
     
     juce::AudioProcessorValueTreeState tree_;
     
+    Service::PresetManager& getPresetManager() { return *presetManager; }
+    
+    void loadAudioSamples();
+    
+    
 private:
     
     //In case of using a tree
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
-    
+    std::unique_ptr<Service::PresetManager> presetManager;
     //==============================================================================
     
     double computeNextBarSyncTime(juce::AudioPlayHead::CurrentPositionInfo currentPosition, double syncTimeDiff);
@@ -102,8 +108,9 @@ private:
     
     //Update Filter parameters in the sampler
     void updateFilter();
-    
-    
+        
+
+
     
     
     

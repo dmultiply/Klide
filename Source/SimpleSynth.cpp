@@ -17,6 +17,26 @@
 SimpleSynth::SimpleSynth() {
     setNoteStealingEnabled(false);
     
+    
+    
+    setDefaultSamples();
+
+    // add voices to our sampler
+    for (int i = 0; i < MAX_VOICES; i++) {
+        //addVoice(new CustomSamplerVoice());
+        addVoice(new DSPSamplerVoice());
+    }
+    
+    // set up our AudioFormatManager class as detailed in the API docs
+    // we can now use WAV and AIFF files!
+    
+    audioFormatManager_.registerBasicFormats();
+
+}
+
+
+void SimpleSynth::setDefaultSamples()
+{
     const char* binaryData = 0;
     int binaryDataSize = 0;
     
@@ -46,18 +66,6 @@ SimpleSynth::SimpleSynth() {
             }
         }
     }
-
-    // add voices to our sampler
-    for (int i = 0; i < MAX_VOICES; i++) {
-        //addVoice(new CustomSamplerVoice());
-        addVoice(new DSPSamplerVoice());
-    }
-    
-    // set up our AudioFormatManager class as detailed in the API docs
-    // we can now use WAV and AIFF files!
-    
-    audioFormatManager_.registerBasicFormats();
-
 }
 
 
@@ -152,6 +160,7 @@ void SimpleSynth::noteOn (const int midiChannel,
         }
     }
 }
+
 
 void SimpleSynth::renderVoices (AudioBuffer<float>& buffer, int startSample, int numSamples)
 {
