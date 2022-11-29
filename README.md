@@ -23,4 +23,4 @@ Which means that the pulses will be put as evenly as possible on the number of s
 - The Frequency of the low pass filter for this sample
 - The Resonance of the low pass filter for this sample
 
-
+And the sync button allows to sync with the DAW after the play button of the DAW is pressed
