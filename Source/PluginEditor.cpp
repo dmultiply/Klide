@@ -533,31 +533,31 @@ void KlideAudioProcessorEditor::resized()
     panLabel_.attachToComponent (panSliderVec_[rowChoiceSlider_.getValue()], false);
     
     intervalSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    intervalSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    intervalSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     intervalLabel_.attachToComponent (intervalSliderVec_[rowChoiceSlider_.getValue()], false);
     
     pulseSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    pulseSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    pulseSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     pulseLabel_.attachToComponent (pulseSliderVec_[rowChoiceSlider_.getValue()], false);
     
     offsetSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    offsetSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    offsetSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     offsetLabel_.attachToComponent (offsetSliderVec_[rowChoiceSlider_.getValue()], false);
     
     gainSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    gainSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    gainSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     gainLabel_.attachToComponent (gainSliderVec_[rowChoiceSlider_.getValue()], false);
     
     frequencySliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    frequencySliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    frequencySliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     frequencyLabel_.attachToComponent (frequencySliderVec_[rowChoiceSlider_.getValue()], false);
     
     resonanceSliderVec_[rowChoiceSlider_.getValue()]->setVisible(true);
-    resonanceSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(80).reduced(10));
+    resonanceSliderVec_[rowChoiceSlider_.getValue()]->setBounds(area.removeFromLeft(70).reduced(10));
     resonanceLabel_.attachToComponent (resonanceSliderVec_[rowChoiceSlider_.getValue()], false);
     
     // === Sync Button
-    syncButton_.setBounds(area.removeFromRight(100).reduced(10));
+    syncButton_.setBounds(area.removeFromRight(70).reduced(10));
     
     
 }
