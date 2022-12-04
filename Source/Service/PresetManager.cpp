@@ -51,13 +51,6 @@ namespace Service
 			return;
 
 		currentPreset.setValue(presetName);
-		const auto xml = valueTreeState.copyState().createXml();
-		const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
-		if (!xml->writeTo(presetFile))
-		{
-			DBG("Could not create preset file: " + presetFile.getFullPathName());
-			jassertfalse;
-		}
         
         // === Copy audio file to defautAudioDirectory
         //TODO : retrieve the number of row from the tree or else
@@ -74,8 +67,22 @@ namespace Service
                 
                 //TODO : add check that it's possible to copy and all
                 file.copyFileTo(defaultAudioDirectory.getChildFile(presetName+ "_" +std::to_string(row) + "." + result));
+                
+                //Put the new name and location of the file in the tree property
+                audioPath.setValue(defaultAudioDirectory.getChildFile(presetName+ "_" +std::to_string(row) + "." + result).getFullPathName());
             }
+            
         }
+        
+        
+        const auto xml = valueTreeState.copyState().createXml();
+        const auto presetFile = defaultDirectory.getChildFile(presetName + "." + extension);
+        if (!xml->writeTo(presetFile))
+        {
+            DBG("Could not create preset file: " + presetFile.getFullPathName());
+            jassertfalse;
+        }
+        
         
 	}
 

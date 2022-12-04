@@ -62,6 +62,8 @@ void KlideAudioProcessor::loadAudioSamples()
     {
         Value audioPath = tree_.state.getPropertyAsValue("AUDIO_FILEPATH"+String(row), nullptr, true);
         
+        std::cout<<"audio : "<<audioPath.toString()<<std::endl;
+        
         if(audioPath.toString().toStdString() != ""){
             synth_.setSample(stepData_->getNote(row), audioPath.toString());
         }
